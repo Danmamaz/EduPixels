@@ -11,14 +11,12 @@
 <body>
     <header class="header">
         <div class="left">
-            <h1 class="logo">EduPixels</h1>
-            <a href="#">Спільнота</a>
-            <a href="#">Ціни</a>
+            <a href="index.html" class="logo">EduPixels</a>
         </div>
 
         <div class="right">
-            <button>Log in</button>
-            <button>Get started</button>
+            <button id="header-login-btn">Log in</button>
+            <button id="header-signup-btn">Get started</button>
         </div>
     </header>
 
@@ -39,7 +37,6 @@
         <h2 class="courses-title">Курси від EduPixels:</h2>
 
         <div class="slider-container">
-
             <button class="slider-button button_left" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -49,30 +46,67 @@
 
             <div class="courses-wrapper">
                 <div class="course-card">
-                    <img src="images/pictuers/b6b30b1e-8767-4e52-9163-fed7bb131fdc 1.png" alt="JavaScript Course"
-                        class="card-content-image">
+                    <img src="images/pictuers/JS_COURSES.png" alt="JavaScript Course" class="card-content-image">
+                    <div class="card-info">
+                        <span class="course-name">JavaScript</span>
+                        <span class="course-modules">8 модулів</span>
+                    </div>
                 </div>
+
                 <div class="course-card">
                     <img src="images/pictuers/REACT_COURSE.png" alt="React Course" class="card-content-image">
+                    <div class="card-info">
+                        <span class="course-name">React</span>
+                        <span class="course-modules">4 модулі</span>
+                    </div>
                 </div>
+
                 <div class="course-card">
                     <img src="images/pictuers/NEXT_JS_COURSE.png" alt="Next.js Course" class="card-content-image">
+                    <div class="card-info">
+                        <span class="course-name">Next.js</span>
+                        <span class="course-modules">5 модулів</span>
+                    </div>
                 </div>
+
                 <div class="course-card">
                     <img src="images/pictuers/PYTHON_COURSE.png" alt="Python Course" class="card-content-image">
+                    <div class="card-info">
+                        <span class="course-name">Python</span>
+                        <span class="course-modules">9 модулів</span>
+                    </div>
                 </div>
+
                 <div class="course-card">
-                    <img src="images/pictuers/b6b30b1e-8767-4e52-9163-fed7bb131fdc 1.png" alt="JavaScript Course"
-                        class="card-content-image">
+                    <img src="images/pictuers/JS_COURSES.png" alt="JavaScript Course" class="card-content-image">
+                    <div class="card-info">
+                        <span class="course-name">JavaScript</span>
+                        <span class="course-modules">8 модулів</span>
+                    </div>
                 </div>
+
                 <div class="course-card">
                     <img src="images/pictuers/REACT_COURSE.png" alt="React Course" class="card-content-image">
+                    <div class="card-info">
+                        <span class="course-name">React</span>
+                        <span class="course-modules">4 модулі</span>
+                    </div>
                 </div>
+
                 <div class="course-card">
                     <img src="images/pictuers/NEXT_JS_COURSE.png" alt="Next.js Course" class="card-content-image">
+                    <div class="card-info">
+                        <span class="course-name">Next.js</span>
+                        <span class="course-modules">5 модулів</span>
+                    </div>
                 </div>
+
                 <div class="course-card">
                     <img src="images/pictuers/PYTHON_COURSE.png" alt="Python Course" class="card-content-image">
+                    <div class="card-info">
+                        <span class="course-name">Python</span>
+                        <span class="course-modules">9 модулів</span>
+                    </div>
                 </div>
             </div>
 
@@ -82,7 +116,6 @@
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
             </button>
-
         </div>
 
         <div class="slider-dots">
@@ -91,10 +124,57 @@
             <span class="dot"></span>
             <span class="dot"></span>
             <span class="dot"></span>
-
         </div>
     </section>
 
+
+    <div class="log_in_container" id="login-modal">
+        <form class="login_form" id="login-form-element">
+            <h1 class="login-logo">EduPixels</h1>
+            <h2 class="login-title">Увійди у свій акаунт</h2>
+
+            <label for="username">Ім'я або email</label>
+            <input id="username" name="username" type="text" placeholder="Ім'я" class="input-field">
+            <p class="error-message" id="login-user-error" style="display: none;"></p>
+
+            <label for="password">Пароль</label>
+            <input id="password" name="password" type="password" placeholder="Пароль" class="input-field">
+            <p class="error-message" id="login-pass-error" style="display: none;"></p>
+
+            <button type="submit" id="login-submit-btn" class="login-btn">Продовжити</button>
+        </form>
+    </div>
+
+    <div class="sign_up_container" id="signup-modal">
+        <form class="login_form" id="signup-form">
+            <h1 class="login-logo">EduPixels</h1>
+            <h2 class="login-title">Створи свій акаунт</h2>
+
+            <label for="reg-name">Ім'я</label>
+            <input id="reg-name" type="text" placeholder="Ім'я" class="input-field">
+            <p class="error-message" id="signup-name-error" style="display: none;"></p>
+
+            <label for="reg-email">Email</label>
+            <input id="reg-email" type="email" placeholder="Email" class="input-field">
+            <p class="error-message" id="signup-email-error" style="display: none;"></p>
+
+            <label for="reg-password">Пароль</label>
+            <input id="reg-password" type="password" placeholder="Пароль" class="input-field">
+            <p class="error-message" id="signup-pass-error" style="display: none;"></p>
+
+            <div id="confirm-password-block" style="display: none;">
+                <label for="reg-confirm-password" class="confirm-label">Підтвердити пароль</label>
+                <input id="reg-confirm-password" type="password" placeholder="Підтвердити пароль" class="input-field">
+                <p class="error-message" id="signup-confirm-error" style="display: none;"></p>
+            </div>
+
+            <button type="submit" id="signup-btn" class="login-btn">Продовжити</button>
+
+            <p class="privacy-text">
+                Продовжуючи, ти погоджуєшся з нашими <a href="#">політиками конфіденційності</a>
+            </p>
+        </form>
+    </div>
 
     <script src="script.js"></script>
 </body>

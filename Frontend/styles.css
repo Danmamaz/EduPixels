@@ -5,6 +5,60 @@
     src: url('fonts/DigitalPixelV124-Regular.otf') format('opentype');
 }
 
+/* --- АНІМАЦІЇ (KEYFRAMES) --- */
+
+/* Поява знизу вгору */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Поява зверху вниз (для хедера) */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Поява модального вікна (Pop Up) */
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Плавна поява фону */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* --- ОСНОВНІ СТИЛІ --- */
+
 body {
     background-color: #120F1A;
     background-image: url("images/pictuers/Background.png");
@@ -21,13 +75,21 @@ body {
     align-items: center;
     min-height: 100vh;
     font-size: 14px;
+    overflow-x: hidden;
 }
 
+/* --- HEADER (ВИПРАВЛЕНИЙ) --- */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 15px;
+
+    /* Використовуємо padding для висоти, щоб хедер "дихав" і не сплющувався */
+    padding: 12px 20px;
+    min-height: 64px;
+    /* Мінімальна висота для стабільності */
+    height: auto;
+
     background-color: #1B1B1B;
     margin-top: 40px;
     border-radius: 16px;
@@ -35,7 +97,10 @@ body {
     max-width: 1720px;
     box-sizing: border-box;
     border: 1px solid #40403F;
-    max-height: 60px;
+
+    position: relative;
+    z-index: 100;
+    animation: slideDown 0.8s ease-out forwards;
 }
 
 .left,
@@ -45,25 +110,33 @@ body {
     gap: 15px;
 }
 
+/* Логотип */
 .logo {
-    font-size: 20px;
-    margin: 15px 30px 15px 10px;
+    font-size: 22px;
     color: white;
     font-family: 'Digital Pixel', sans-serif;
-    font-weight: 400;
-}
-
-.left a {
+    font-weight: 300;
     text-decoration: none;
-    color: #a0a0a0;
-    font-size: 13px;
-    font-weight: 200;
+    cursor: pointer;
+
+    /* Відступи для позиціонування */
+    margin: 0 30px 0 10px;
+
+    /* Скидаємо висоту рядка */
+    line-height: 1;
+    /* Оптична корекція центрування */
+    padding-top: 4px;
+
+    display: block;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
 }
 
-.left a:hover {
-    color: white;
+.logo:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
+/* Кнопки в хедері */
 .right button {
     padding: 5px 12px;
     border: none;
@@ -71,6 +144,7 @@ body {
     cursor: pointer;
     font-size: 13px;
     font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .right button:nth-child(1) {
@@ -80,11 +154,25 @@ body {
     border: 1px solid #40403F;
 }
 
+.right button:nth-child(1):hover {
+    background: #444444;
+    border-color: #666;
+    transform: translateY(-1px);
+}
+
 .right button:nth-child(2) {
     background: #FFFFFF;
     color: #1B1B1B;
+    font-weight: 600;
 }
 
+.right button:nth-child(2):hover {
+    background: #E0E0E0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* --- HERO CONTENT --- */
 .content {
     display: flex;
     flex-direction: column;
@@ -100,6 +188,8 @@ body {
     margin-bottom: 10px;
     font-family: 'Digital Pixel', sans-serif;
     font-weight: 400;
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out 0.2s forwards;
 }
 
 .content .subtitle {
@@ -108,6 +198,8 @@ body {
     margin-bottom: 40px;
     margin-top: -12px;
     font-weight: normal;
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out 0.4s forwards;
 }
 
 .input-container {
@@ -120,14 +212,17 @@ body {
     background: #272725;
     border: 1px solid #40403F;
     border-radius: 30px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     padding: 10px 20px 10px 25px;
     box-sizing: border-box;
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out 0.6s forwards;
 }
 
 .input-container:focus-within {
     border-color: #e3e3e3;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
 }
 
 .input-container textarea {
@@ -158,6 +253,11 @@ body {
     color: #8A8A9A;
     font-size: 14px;
     font-family: inherit;
+    transition: color 0.3s ease;
+}
+
+.input-container:focus-within textarea::placeholder {
+    color: #5a5a5a;
 }
 
 .input-container button {
@@ -172,38 +272,33 @@ body {
     cursor: pointer;
     font-size: 20px;
     margin-bottom: 2px;
+    transition: all 0.3s ease;
+}
+
+.input-container button:hover {
+    background: #FFFFFF;
+    transform: scale(1.1);
 }
 
 .input-container button img {
     width: 16px;
     height: 16px;
+    transition: transform 0.3s ease;
+}
+
+.input-container button:hover img {
+    transform: rotate(-15deg);
 }
 
 .postscript {
     font-size: 12px;
     color: #E3D8EF;
+    margin-top: 15px;
+    opacity: 0;
+    animation: fadeIn 1s ease-out 1s forwards;
 }
 
-.input-container textarea::-webkit-scrollbar {
-    width: 8px;
-}
-
-.input-container textarea::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.input-container textarea::-webkit-scrollbar-thumb {
-    background-color: #92918F;
-    border-radius: 4px;
-}
-
-.input-container textarea::-webkit-scrollbar-thumb:hover {
-    background-color: #a0a0a0;
-}
-
-
-/* --- СТИЛІ ДЛЯ СЛАЙДЕРА КУРСІВ (ОНОВЛЕНО) --- */
-
+/* --- SLIDER --- */
 .courses-section {
     width: 90%;
     max-width: 1720px;
@@ -213,6 +308,14 @@ body {
     border-radius: 16px;
     box-sizing: border-box;
     padding: 30px 50px 40px 50px;
+    opacity: 0;
+    animation: fadeUp 1s ease-out 0.8s forwards;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.courses-section:hover {
+    border-color: #555;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .courses-title {
@@ -238,13 +341,17 @@ body {
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    padding: 5px 0;
 }
 
 .courses-wrapper::-webkit-scrollbar {
     display: none;
 }
 
+/* Стилі карток курсів */
 .course-card {
+    position: relative;
+    /* Важливо для тексту поверх */
     background-color: #1A1923;
     border-radius: 16px;
     border: 1px solid #2C2C34;
@@ -253,29 +360,67 @@ body {
     width: calc((100% - 60px) / 4);
     flex-shrink: 0;
     aspect-ratio: 1.6 / 1;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+.course-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: #444;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .course-card .card-content-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
 }
 
-/* --- ОНОВЛЕНІ СТИЛІ ДЛЯ КНОПОК-СТРІЛОК --- */
+.course-card:hover .card-content-image {
+    transform: scale(1.05);
+}
+
+/* Текст поверх карток */
+.card-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px 20px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.course-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: 0.3px;
+}
+
+.course-modules {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: #B0B0B0;
+}
+
+/* Кнопки слайдера */
 .slider-button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-
-    /* !!! ЗМІНА ТУТ: Фон і рамка прибрані */
     background: transparent;
     border: none;
     padding: 0;
-    /* Додано для SVG */
-    /* !!! ЗМІНА ТУТ: Колір тепер для SVG */
     color: white;
-
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -283,24 +428,30 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-
     opacity: 0;
-    transition: opacity 0.3s ease, background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
-/* !!! НОВИЙ СТИЛЬ: Розмір SVG всередині кнопки */
 .slider-button svg {
     width: 24px;
     height: 24px;
+    transition: transform 0.2s ease;
 }
-
 
 .button_left {
     left: 15px;
 }
 
+.button_left:hover svg {
+    transform: translateX(-2px);
+}
+
 .button_right {
     right: 15px;
+}
+
+.button_right:hover svg {
+    transform: translateX(2px);
 }
 
 .slider-container:hover .slider-button {
@@ -308,17 +459,16 @@ body {
 }
 
 .slider-button:hover {
-    /* Легкий фон при наведенні для фідбеку */
-    background: rgba(60, 60, 60, 0.5);
+    background: rgba(60, 60, 60, 0.7);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .slider-button:disabled {
-    /* !!! ЗМІНА ТУТ: Фон прибраний */
     background: transparent;
     opacity: 0.2 !important;
     cursor: not-allowed;
+    transform: translateY(-50%) scale(1);
 }
-
 
 .slider-dots {
     display: flex;
@@ -333,9 +483,204 @@ body {
     border-radius: 50%;
     background-color: #40403F;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+}
+
+.dot:hover {
+    background-color: #888;
+    transform: scale(1.2);
 }
 
 .dot.active {
     background-color: #FFFFFF;
+    transform: scale(1.2);
+}
+
+/* --- МОДАЛЬНІ ВІКНА --- */
+
+.log_in_container,
+.sign_up_container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+}
+
+.modal-open {
+    display: flex !important;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* --- СТИЛІ ФОРМИ --- */
+
+.login_form {
+    background-color: #1C1C1C;
+    padding: 40px;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 480px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modal-open .login_form {
+    animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.login-logo {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 24px;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.login-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 30px;
+    color: #ffffff;
+    margin: 0 0 26px 0;
+    font-weight: 500;
+}
+
+.login_form label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    color: #B0B0B0;
+    margin-bottom: 12px;
+    /* Універсальний відступ для лейблів */
+    font-weight: 500;
+}
+
+.input-field {
+    width: 100%;
+    background-color: #1F1F1F;
+    border: 1px solid #2E2E2E;
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: white;
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    height: 48px;
+}
+
+.input-field::placeholder {
+    color: #666666;
+}
+
+.input-field:focus {
+    border-color: #ffffff;
+    background-color: #252525;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* ГОЛОВНИЙ ФІКС: Якщо є помилка, прибираємо margin-bottom у поля */
+.input-field.error-input {
+    border-color: #CF3434;
+    margin-bottom: 0 !important;
+}
+
+/* Текст помилки */
+.error-message {
+    color: #CF3434;
+    font-size: 13px;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    /* Цей відступ замінює відступ поля при помилці */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    line-height: 1.2;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* --- СПЕЦИФІЧНІ ВІДСТУПИ ДЛЯ ЛОГІНУ --- */
+#username {
+    margin-bottom: 24px;
+}
+
+#password {
+    margin-bottom: 32px;
+}
+
+/* --- СПЕЦИФІЧНІ ВІДСТУПИ ДЛЯ РЕЄСТРАЦІЇ --- */
+#reg-email,
+#reg-password,
+#reg-name {
+    margin-bottom: 24px;
+}
+
+/* Блок другого пароля */
+#confirm-password-block {
+    width: 100%;
+    margin-bottom: 40px;
+    animation: fadeUp 0.4s ease-out forwards;
+}
+
+#confirm-password-block label {
+    display: block;
+    margin-bottom: 12px;
+}
+
+#reg-confirm-password {
+    margin-bottom: 0;
+}
+
+.login-btn {
+    width: 100%;
+    background-color: #FFFFFF;
+    color: #000000;
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-btn:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.login-btn:active {
+    transform: scale(0.98);
+}
+
+.privacy-text {
+    font-size: 14px;
+    color: #666666;
+    margin-top: 24px;
+    line-height: 1.4;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.privacy-text a {
+    color: #B0B0B0;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.privacy-text a:hover {
+    color: #ffffff;
 }
