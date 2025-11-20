@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Профіль | EduPixels</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body style="background-image: url('images/pictuers/UserPage.png');">
+    <header class="header">
+      <div class="left">
+        <a href="index.html" class="logo">EduPixels</a>
+      </div>
+
+      <div class="header-search-container">
+        <input type="text" placeholder="Твій проект..." class="profile-header-input" />
+      </div>
+
+      <div class="right">
+        <div class="streak-info">
+          <img src="images/icons/flame.png" alt="Fire" class="fire-icon-placeholder" />
+          <span>10 ДНІВ</span>
+        </div>
+        <button id="logout-btn" style="margin-left: 15px; padding: 5px 15px; border-radius: 8px; border: none; cursor: pointer;">Вийти</button>
+      </div>
+    </header>
+
+    <main class="profile-main">
+      <div class="profile-sidebar">
+        <div class="profile-card profile-info-card">
+          <div class="profile-avatar-container">
+            <img src="images/pictuers/user_photo.png" alt="Profile Avatar" class="profile-avatar-image" />
+          </div>
+
+          <h3 class="profile-name">Завантаження...</h3>
+          <p class="profile-email">...</p>
+
+          <button class="edit-profile-btn">Редагувати профіль</button>
+        </div>
+      </div>
+
+      <div class="profile-content-grid">
+        <div class="content-card course-progress-card">
+          <div class="course-header">
+            <img src="images/icons/python.png" alt="Python" class="course-icon-placeholder" />
+            <p class="modules-count">9 модулів</p>
+            <h4 class="course-name-big">Python</h4>
+          </div>
+
+          <div class="progress-bar-container">
+            <div class="progress-bar" style="width: 10%;"></div>
+          </div>
+          <div class="progress-info">
+            <span>1</span>
+            <span>10</span>
+          </div>
+        </div>
+
+        <div class="content-card empty-card-1"></div>
+        <div class="content-card empty-card-2"></div>
+        <div class="content-card empty-card-3"></div>
+      </div>
+    </main>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('accessToken')
+      
+        // Перевірка чи ми залогінені
+        if (!token) {
+          window.location.href = 'index.html'
+          return
+        }
+      
+        const nameEl = document.querySelector('.profile-name')
+        const emailEl = document.querySelector('.profile-email')
+      
+        try {
+          // Запит тільки за Іменем та Email (твоя стара модель CustomUser)
+          const response = await fetch('http://127.0.0.1:8000/profile/', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+      
+          if (response.ok) {
+            const userData = await response.json()
+      
+            // Підставляємо тільки текст
+            if (nameEl) nameEl.textContent = userData.username
+            if (emailEl) emailEl.textContent = userData.email
+          } else if (response.status === 401) {
+            localStorage.removeItem('accessToken')
+            window.location.href = 'index.html'
+          }
+        } catch (error) {
+          console.error('Помилка:', error)
+          if (nameEl) nameEl.textContent = "Помилка з'єднання"
+        }
+      
+        // Кнопка Вийти
+        const logoutBtn = document.getElementById('logout-btn')
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('accessToken')
+            window.location.href = 'index.html'
+          })
+        }
+      })
+    </script>
+  </body>
+</html>
