@@ -8,6 +8,8 @@ class CustomUser(models.Model):
     password = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    USERNAME_FIELD = "username"
+
     def set_password(self, raw_password, hashed=False):
         """hashed=True if password comes SHA256 from client"""
         self.password = make_password(raw_password)
@@ -26,13 +28,3 @@ class CustomUser(models.Model):
 
     def __str__(self):
         return self.username
-
-
-class TokenTransaction(models.Model):
-    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='token_transactions')
-    input_token = models.IntegerField(default=0)
-    output_token = models.IntegerField(default=0)
-    date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f"Transaction {self.id} for {self.user.username}: +{self.input_token} -{self.output_token} at {self.date}"
