@@ -13,6 +13,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate_password(self, value):
         if len(value) > 48:
             raise serializers.ValidationError("Password must be at most 48 characters long.")
+        if len(value) < 8:
+            raise serializers.ValidationError("Password must be minimum 8 characters.")
         # simple emoji check: allow only basic printable characters
         if not re.match(r'^[\x20-\x7E]+$', value):
             raise serializers.ValidationError("Password contains invalid characters (no emojis allowed).")
