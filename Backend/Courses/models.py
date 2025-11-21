@@ -13,8 +13,12 @@ class ChatPrompt(models.Model):
 
 
 class CourseModel(models.Model):
-    topic = models.CharField(max_length=80)
-    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="courses", null=True, blank=True)
+    owner = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="courses"
+    )
+    topic = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -22,18 +26,26 @@ class CourseModel(models.Model):
 
 
 class ModuleModel(models.Model):
-    course = models.ForeignKey(CourseModel, on_delete=models.CASCADE, related_name="modules")
-    title = models.CharField(max_length=100)
+    course = models.ForeignKey(
+        CourseModel,
+        on_delete=models.CASCADE,
+        related_name="modules"
+    )
+    title = models.CharField(max_length=255)
 
     def __str__(self):
         return self.title
 
 
-class LessonModule(models.Model):
-    module = models.ForeignKey(ModuleModel, on_delete=models.CASCADE, related_name="lessons")
-    title = models.CharField(max_length=100)
-    type = models.CharField(max_length=20, default="lecture")
-    content = models.TextField(blank=True, null=True)
+class LessonModel(models.Model):
+    module = models.ForeignKey(
+        ModuleModel,
+        on_delete=models.CASCADE,
+        related_name="lessons"
+    )
+    title = models.CharField(max_length=255)
+    type = models.CharField(max_length=50)
+    content = models.TextField()
 
     def __str__(self):
         return self.title
