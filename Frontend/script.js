@@ -23,7 +23,7 @@ if (textarea) {
     autoResize();
 }
 
-// --- 2. Slider Logic ---
+// --- 2. Slider Logic (ПОВЕРНУТО ПОВНІСТЮ) ---
 document.addEventListener('DOMContentLoaded', () => {
     const wrapper = document.querySelector('.courses-wrapper');
     const dotsContainer = document.querySelector('.slider-dots');
@@ -97,8 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- 3. Logic for Modals & Full Validation ---
+// --- 3. Logic for Modals & Auth (З ПЕРЕНАПРАВЛЕННЯМ) ---
 document.addEventListener('DOMContentLoaded', () => {
+    const API_BASE_URL = "http://127.0.0.1:8000"; 
+
     // Кнопки хедеру
     const headerLoginBtn = document.getElementById('header-login-btn');
     const headerSignupBtn = document.getElementById('header-signup-btn');
@@ -126,40 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const regConfirmError = document.getElementById('signup-confirm-error');
 
     // === Допоміжні функції ===
+    function openModal(modal) { if (modal) { modal.classList.add('modal-open'); document.body.style.overflow = 'hidden'; } }
+    function closeModal(modal) { if (modal) { modal.classList.remove('modal-open'); document.body.style.overflow = ''; } }
+    function showError(input, msgElement, message) { input.classList.add('error-input'); msgElement.innerText = message; msgElement.style.display = 'block'; }
+    function clearError(input, msgElement) { input.classList.remove('error-input'); if (msgElement) msgElement.style.display = 'none'; }
+    function isValidEmail(email) { return /\S+@\S+\.\S+/.test(email); }
 
-    function openModal(modal) {
-        if (modal) {
-            modal.classList.add('modal-open');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-
-    function closeModal(modal) {
-        if (modal) {
-            modal.classList.remove('modal-open');
-            document.body.style.overflow = '';
-        }
-    }
-
-    // Функція показу помилки
-    function showError(input, msgElement, message) {
-        input.classList.add('error-input');
-        msgElement.innerText = message;
-        msgElement.style.display = 'block';
-    }
-
-    // Функція очищення помилки
-    function clearError(input, msgElement) {
-        input.classList.remove('error-input');
-        if (msgElement) msgElement.style.display = 'none';
-    }
-
-    // Функція перевірки email (Regex)
-    function isValidEmail(email) {
-        return /\S+@\S+\.\S+/.test(email);
-    }
-
-    // --- Event Listeners для Модалок ---
     if (headerLoginBtn) headerLoginBtn.addEventListener('click', () => { openModal(loginModal); closeModal(signupModal); });
     if (headerSignupBtn) headerSignupBtn.addEventListener('click', () => { openModal(signupModal); closeModal(loginModal); });
 
@@ -173,9 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // === ВАЛІДАЦІЯ ЛОГІНУ ===
+    // === ЛОГІН ===
     if (loginSubmitBtn) {
-        // Очищення помилок при вводі
         [loginUserInput, loginPassInput].forEach(input => {
             input.addEventListener('input', () => {
                 clearError(input, input === loginUserInput ? loginUserError : loginPassError);
@@ -186,31 +159,57 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             let isValid = true;
 
-            // Перевірка імені
             if (loginUserInput.value.trim() === "") {
-                showError(loginUserInput, loginUserError, "Введіть ім'я або email");
+                showError(loginUserInput, loginUserError, "Введіть email");
                 isValid = false;
             }
 
-            // Перевірка паролю
             if (loginPassInput.value.trim() === "") {
                 showError(loginPassInput, loginPassError, "Введіть пароль");
                 isValid = false;
             }
 
             if (isValid) {
-                // Імітація успішного входу
-                console.log("Login Success");
-                alert("Вхід виконано!");
-                closeModal(loginModal);
+                const originalText = loginSubmitBtn.innerText;
+                loginSubmitBtn.innerText = "Вхід...";
+                loginSubmitBtn.disabled = true;
+
+                fetch(`${API_BASE_URL}/auth/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: loginUserInput.value,
+                        password: loginPassInput.value
+                    })
+                })
+                .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                .then(obj => {
+                    loginSubmitBtn.innerText = originalText;
+                    loginSubmitBtn.disabled = false;
+
+                    if (obj.status === 200) {
+                        localStorage.setItem('accessToken', obj.body.token);
+                        alert("Вхід успішний!");
+                        closeModal(loginModal);
+                        // ПЕРЕНАПРАВЛЕННЯ НА ПРОФІЛЬ
+                        window.location.href = 'profile.html'; 
+                    } else {
+                        showError(loginPassInput, loginPassError, "Невірний email або пароль");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    loginSubmitBtn.innerText = originalText;
+                    loginSubmitBtn.disabled = false;
+                    alert("Помилка з'єднання");
+                });
             }
         });
     }
 
 
-    // === ВАЛІДАЦІЯ РЕЄСТРАЦІЇ ===
+    // === РЕЄСТРАЦІЯ ===
     if (signupBtn) {
-        // Очищення помилок при вводі для всіх полів
         const regInputs = [
             { input: regNameInput, error: regNameError },
             { input: regEmailInput, error: regEmailError },
@@ -230,16 +229,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             let isFormValid = true;
 
-            // 1. Валідація Імені
             if (regNameInput.value.trim() === "") {
                 showError(regNameInput, regNameError, "Введіть ім'я");
                 isFormValid = false;
-            } else if (regNameInput.value.toLowerCase() === "admin") {
-                showError(regNameInput, regNameError, "Користувач вже існує");
-                isFormValid = false;
             }
 
-            // 2. Валідація Email
             if (regEmailInput.value.trim() === "") {
                 showError(regEmailInput, regEmailError, "Введіть email");
                 isFormValid = false;
@@ -248,9 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isFormValid = false;
             }
 
-            // 3. Логіка появи другого пароля
             if (confirmBlock.style.display === 'none') {
-                // Якщо блок ще закритий, перевіряємо перший пароль
                 if (regPassInput.value.trim() === "") {
                     showError(regPassInput, regPassError, "Введіть пароль");
                     isFormValid = false;
@@ -259,31 +251,59 @@ document.addEventListener('DOMContentLoaded', () => {
                     isFormValid = false;
                 }
 
-                // Якщо всі поля (Ім'я, Email, Пароль1) валіді - відкриваємо другий етап
                 if (isFormValid) {
                     confirmBlock.style.display = 'block';
-
-                    // --- ОСЬ ТУТ ЗМІНЮЄМО ТЕКСТ КНОПКИ ---
                     signupBtn.innerText = 'Зареєструватися';
-
                     regConfirmInput.focus();
                 }
 
             } else {
-                // Якщо блок ВЖЕ відкритий - перевіряємо підтвердження
                 if (regPassInput.value !== regConfirmInput.value) {
                     showError(regConfirmInput, regConfirmError, "Паролі не співпадають");
                     isFormValid = false;
                 }
 
                 if (isFormValid) {
-                    console.log("Registration Success");
-                    alert("Реєстрація успішна!");
-                    closeModal(signupModal);
+                    const originalText = signupBtn.innerText;
+                    signupBtn.innerText = 'Обробка...';
+                    signupBtn.disabled = true;
 
-                    // Опціонально: скидаємо форму після успіху
-                    // signupBtn.innerText = 'Продовжити'; 
-                    // confirmBlock.style.display = 'none';
+                    fetch(`${API_BASE_URL}/auth/register/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: regNameInput.value,
+                            email: regEmailInput.value,
+                            password: regPassInput.value
+                        })
+                    })
+                    .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                    .then(obj => {
+                        signupBtn.innerText = originalText;
+                        signupBtn.disabled = false;
+
+                        if (obj.status === 201) {
+                            localStorage.setItem('accessToken', obj.body.token);
+                            alert("Реєстрація успішна!");
+                            closeModal(signupModal);
+                            // ПЕРЕНАПРАВЛЕННЯ НА ПРОФІЛЬ
+                            window.location.href = 'profile.html';
+                        } else {
+                            if (obj.body.username) showError(regNameInput, regNameError, "Користувач з таким ім'ям існує");
+                            if (obj.body.email) showError(regEmailInput, regEmailError, "Email вже використовується");
+                            if (obj.body.password) showError(regPassInput, regPassError, obj.body.password[0]);
+                            
+                            if (!obj.body.username && !obj.body.email && !obj.body.password) {
+                                alert("Сталася помилка: " + JSON.stringify(obj.body));
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        signupBtn.innerText = originalText;
+                        signupBtn.disabled = false;
+                        alert("Помилка з'єднання.");
+                    });
                 }
             }
         });

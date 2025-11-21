@@ -7,11 +7,10 @@
 
 /* --- АНІМАЦІЇ (KEYFRAMES) --- */
 
-/* Поява знизу вгору */
 @keyframes fadeUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
     }
 
     to {
@@ -20,11 +19,10 @@
     }
 }
 
-/* Поява зверху вниз (для хедера) */
 @keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateY(-15px);
     }
 
     to {
@@ -33,11 +31,10 @@
     }
 }
 
-/* Поява модального вікна (Pop Up) */
 @keyframes modalPop {
     from {
         opacity: 0;
-        transform: scale(0.9) translateY(10px);
+        transform: scale(0.95) translateY(5px);
     }
 
     to {
@@ -46,7 +43,6 @@
     }
 }
 
-/* Плавна поява фону */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -78,21 +74,19 @@ body {
     overflow-x: hidden;
 }
 
-/* --- HEADER (ВИПРАВЛЕНИЙ) --- */
+/* --- HEADER --- */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 
-    /* Використовуємо padding для висоти, щоб хедер "дихав" і не сплющувався */
-    padding: 12px 20px;
-    min-height: 64px;
-    /* Мінімальна висота для стабільності */
-    height: auto;
+    padding: 12px 26px;
+    min-height: 80px;
+    height: 100%;
 
     background-color: #1B1B1B;
     margin-top: 40px;
-    border-radius: 16px;
+    border-radius: 24px;
     width: 90%;
     max-width: 1720px;
     box-sizing: border-box;
@@ -112,19 +106,15 @@ body {
 
 /* Логотип */
 .logo {
-    font-size: 22px;
+    font-size: 24px;
     color: white;
     font-family: 'Digital Pixel', sans-serif;
     font-weight: 300;
     text-decoration: none;
     cursor: pointer;
 
-    /* Відступи для позиціонування */
     margin: 0 30px 0 10px;
-
-    /* Скидаємо висоту рядка */
     line-height: 1;
-    /* Оптична корекція центрування */
     padding-top: 4px;
 
     display: block;
@@ -138,13 +128,15 @@ body {
 
 /* Кнопки в хедері */
 .right button {
-    padding: 5px 12px;
+    padding: 5px 20px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     font-family: inherit;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    height: 40px;
+    width: auto;
 }
 
 .right button:nth-child(1) {
@@ -178,13 +170,13 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-top: 180px;
+    margin-top: 210px;
     width: 100%;
-    margin-bottom: 250px;
+    /* margin-bottom: 250px; */
 }
 
 .content h1 {
-    font-size: 40px;
+    font-size: 48px;
     margin-bottom: 10px;
     font-family: 'Digital Pixel', sans-serif;
     font-weight: 400;
@@ -193,11 +185,11 @@ body {
 }
 
 .content .subtitle {
-    font-size: 15px;
+    font-size: 18px;
     color: #E3D8EF;
-    margin-bottom: 40px;
+    /* margin-bottom: 40px; */
     margin-top: -12px;
-    font-weight: normal;
+    font-weight: 100;
     opacity: 0;
     animation: fadeUp 0.8s ease-out 0.4s forwards;
 }
@@ -205,18 +197,20 @@ body {
 .input-container {
     position: relative;
     width: 100%;
-    max-width: 780px;
-    min-height: 60px;
+    height: 100%;
+    max-width: 960px;
+    min-height: 72px;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     background: #272725;
     border: 1px solid #40403F;
-    border-radius: 30px;
+    border-radius: 60px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     padding: 10px 20px 10px 25px;
     box-sizing: border-box;
     opacity: 0;
     animation: fadeUp 0.8s ease-out 0.6s forwards;
+    margin-top: 50px;
 }
 
 .input-container:focus-within {
@@ -251,7 +245,7 @@ body {
 
 .input-container textarea::placeholder {
     color: #8A8A9A;
-    font-size: 14px;
+    font-size: 16px;
     font-family: inherit;
     transition: color 0.3s ease;
 }
@@ -262,8 +256,8 @@ body {
 
 .input-container button {
     flex-shrink: 0;
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     background: #92918F;
     border: none;
     border-radius: 50%;
@@ -281,19 +275,15 @@ body {
 }
 
 .input-container button img {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     transition: transform 0.3s ease;
 }
 
-.input-container button:hover img {
-    transform: rotate(-15deg);
-}
-
 .postscript {
-    font-size: 12px;
+    font-size: 14px;
     color: #E3D8EF;
-    margin-top: 15px;
+    margin-top: 20px;
     opacity: 0;
     animation: fadeIn 1s ease-out 1s forwards;
 }
@@ -302,10 +292,10 @@ body {
 .courses-section {
     width: 90%;
     max-width: 1720px;
-    margin: 100px auto 60px auto;
+    margin: 470px auto 60px auto;
     background-color: #1B1B1B;
     border: 1px solid #40403F;
-    border-radius: 16px;
+    border-radius: 24px;
     box-sizing: border-box;
     padding: 30px 50px 40px 50px;
     opacity: 0;
@@ -319,7 +309,7 @@ body {
 }
 
 .courses-title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 200;
     color: #ffffff;
     padding-left: 0;
@@ -351,7 +341,6 @@ body {
 /* Стилі карток курсів */
 .course-card {
     position: relative;
-    /* Важливо для тексту поверх */
     background-color: #1A1923;
     border-radius: 16px;
     border: 1px solid #2C2C34;
@@ -363,6 +352,28 @@ body {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
 }
+
+@media (max-width: 1400px) {
+    .course-card {
+        width: calc((100% - 40px) / 3);
+        /* 3 картки, 2*20px gap */
+    }
+}
+
+@media (max-width: 1000px) {
+    .course-card {
+        width: calc((100% - 20px) / 2);
+        /* 2 картки, 1*20px gap */
+    }
+}
+
+@media (max-width: 600px) {
+    .course-card {
+        width: 100%;
+        /* 1 картка */
+    }
+}
+
 
 .course-card:hover {
     transform: translateY(-8px) scale(1.02);
@@ -478,8 +489,8 @@ body {
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     background-color: #40403F;
     cursor: pointer;
@@ -559,7 +570,6 @@ body {
     font-size: 14px;
     color: #B0B0B0;
     margin-bottom: 12px;
-    /* Універсальний відступ для лейблів */
     font-weight: 500;
 }
 
@@ -588,7 +598,6 @@ body {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
 
-/* ГОЛОВНИЙ ФІКС: Якщо є помилка, прибираємо margin-bottom у поля */
 .input-field.error-input {
     border-color: #CF3434;
     margin-bottom: 0 !important;
@@ -600,7 +609,6 @@ body {
     font-size: 13px;
     margin-top: 6px;
     margin-bottom: 16px;
-    /* Цей відступ замінює відступ поля при помилці */
     font-family: 'Plus Jakarta Sans', sans-serif;
     line-height: 1.2;
     animation: fadeIn 0.3s ease-out;
@@ -683,4 +691,456 @@ body {
 
 .privacy-text a:hover {
     color: #ffffff;
+}
+
+
+
+
+/* --- СТИЛІ ДЛЯ СТОРІНКИ ПРОФІЛЮ (profile.html) --- */
+
+/* Хедер */
+.header-search-container {
+    flex-grow: 1;
+    max-width: 500px;
+    margin: 0 20px;
+    height: 40px;
+    background: #272725;
+    border: 1px solid #40403F;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    transition: border-color 0.3s ease;
+}
+
+.header-search-container:focus-within {
+    border-color: #888;
+}
+
+.profile-header-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.profile-header-input::placeholder {
+    color: #666;
+}
+
+.streak-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #FF4D00;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Digital Pixel', sans-serif;
+    letter-spacing: 1px;
+}
+
+.fire-icon-placeholder {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* --- ОСНОВНА СІТКА ПРОФІЛЮ --- */
+
+.profile-main {
+    width: 90%;
+    max-width: 1720px;
+    margin: 40px auto 100px auto;
+    display: flex;
+    gap: 24px;
+    /* Трохи збільшив відступ між профілем і курсами */
+    box-sizing: border-box;
+    align-items: flex-start;
+    animation: fadeUp 0.8s ease-out 0.2s forwards;
+}
+
+/* Сайдбар тепер має ширину 400px згідно з прототипом */
+.profile-sidebar {
+    width: 400px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Сітка контенту адаптована під широкі картки (630px) */
+.profile-content-grid {
+    flex-grow: 1;
+    display: grid;
+    /* Намагаємось тримати картки шириною ~630px, або розтягувати їх */
+    grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+    /* Висота рядка 300px згідно з прототипом */
+    grid-auto-rows: 300px;
+    gap: 24px;
+}
+
+/* Спільний стиль карток */
+.profile-card,
+.content-card {
+    background-color: #1B1B1B;
+    border: 1px solid #40403F;
+    border-radius: 24px;
+    padding: 30px;
+    box-sizing: border-box;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.content-card:hover {
+    border-color: #666;
+}
+
+/* --- КАРТКА ПРОФІЛЮ (Оновлені розміри) --- */
+.profile-info-card {
+    /* Фіксована висота 499px згідно з прототипом */
+    height: 499px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Центрування по вертикалі */
+    position: relative;
+    padding: 40px 30px;
+    /* Більше відступів */
+}
+
+.profile-avatar-container {
+    /* Збільшено розмір аватара. 
+       Хоча виділення 300x300, але з урахуванням padding картки, 
+       робимо максимально можливий розмір, щоб виглядало гармонійно */
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    margin-bottom: 30px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.profile-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 24px;
+    /* Трохи збільшив шрифт імені */
+    font-weight: 400;
+    margin: 0 0 -10px 0;
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.profile-email {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #888;
+    margin: 0 0 0px 0;
+    /* Більший відступ до кнопки */
+    word-break: break-all;
+    text-align: center;
+}
+
+.edit-profile-btn {
+    width: 100%;
+    max-width: 340px;
+    /* Обмеження ширини кнопки, щоб була як на макеті */
+    min-height: 36px;
+    background: #272725;
+    color: #888;
+    border: 1px solid #40403F;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-top: auto;
+    /* Притискає кнопку до низу, якщо є вільне місце */
+}
+
+.edit-profile-btn:hover {
+    background: #333;
+    color: white;
+    border-color: #666;
+}
+
+/* --- КАРТКА КУРСУ (Python) --- */
+/* Вона автоматично отримає висоту 300px від grid-auto-rows */
+.course-progress-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #1B1B1B;
+    padding: 30px 35px;
+    /* Трохи підправив відступи */
+}
+
+.course-progress-card .course-header {
+    margin-bottom: 10px;
+}
+
+.course-progress-card .course-icon-placeholder {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.course-progress-card .modules-count {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 14px;
+    color: #B0B0B0;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Іконка модулів */
+.course-progress-card .modules-count::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-image: url('images/icons/python.png');
+    /* Переконайся, що шлях вірний */
+    background-size: contain;
+    background-repeat: no-repeat;
+    filter: grayscale(1);
+    opacity: 0.7;
+}
+
+.course-progress-card .course-name-big {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 16px;
+    /* Збільшив шрифт заголовку курсу для розміру картки 630px */
+    font-weight: 400;
+    color: #FFFFFF;
+    margin: 10px 0;
+}
+
+/* Смуга прогресу */
+.progress-bar-container {
+    width: 100%;
+    height: 6px;
+    /* Трохи товстіша лінія */
+    background-color: #333;
+    border-radius: 3px;
+    margin-top: auto;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #7CFC00;
+    border-radius: 3px;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 16px;
+    color: #7CFC00;
+}
+
+/* МЕДІА-ЗАПИТИ */
+
+@media (max-width: 1300px) {
+    .profile-main {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-sidebar {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    /* Якщо екран малий, повертаємо звичну висоту */
+    .profile-info-card {
+        height: auto;
+        min-height: 499px;
+    }
+
+    .profile-content-grid {
+        width: 100%;
+        grid-template-columns: 1fr;
+        /* Одна колонка на менших екранах */
+    }
+}
+
+@media (max-width: 768px) {
+    .header-search-container {
+        display: none;
+    }
+
+    .profile-sidebar {
+        width: 100%;
+    }
+
+    .profile-info-card {
+        height: auto;
+        padding: 30px;
+    }
+
+    .profile-avatar-container {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+
+
+/* --- СТИЛІ ДЛЯ СТОРІНКИ ТЕМ (TOPICS) --- */
+
+/* Додаткові елементи в хедері (справа) */
+.header-icon-text {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 20px;
+    color: #ffffff;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+.header-avatar-small {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid #40403F;
+    margin-left: 15px;
+    flex-shrink: 0;
+}
+
+.header-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Основний контейнер сторінки */
+.topics-main {
+    width: 90%;
+    max-width: 1720px;
+    margin: 30px auto 60px auto;
+    /* Відступ від хедера такий самий, як на скріншоті */
+    display: flex;
+    gap: 24px;
+    height: calc(100vh - 180px);
+    /* Розтягуємо на весь екран мінус хедер */
+    min-height: 600px;
+    box-sizing: border-box;
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+/* --- ЛІВА КОЛОНКА (Сайдбар) --- */
+.topics-sidebar {
+    width: 320px;
+    /* Фіксована ширина, схожа на макет */
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-inner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    background-color: #1B1B1B;
+    /* Темний фон */
+}
+
+.sidebar-title {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 16px;
+    color: #B0B0B0;
+    /* Світло-сірий текст */
+    margin: 0 0 20px 10px;
+    /* Відступ зліва і знизу */
+    letter-spacing: 0.5px;
+    font-weight: 400;
+}
+
+.sidebar-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: 100%;
+    /* Розтягуємо на всю висоту */
+    overflow-y: auto;
+    /* Дозволяємо вертикальний скрол (якщо треба) */
+    overflow-x: hidden;
+    /* ЗАБОРОНЯЄМО горизонтальний скрол */
+    padding-right: 5px;
+
+    /* Прибираємо вигляд скролбару для Firefox */
+    scrollbar-width: none;
+}
+
+/* Прибираємо вигляд скролбару для Chrome, Safari та Opera */
+.sidebar-items-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* Пусті прямокутники в сайдбарі */
+.sidebar-item {
+    width: 100%;
+    height: 60px;
+    background-color: #272725;
+    /* Трохи світліший за фон картки */
+    border-radius: 16px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.sidebar-item:hover {
+    border-color: #444;
+    background-color: #30302E;
+}
+
+/* --- ПРАВА КОЛОНКА (Основна зона) --- */
+.topics-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.empty-workspace {
+    width: 100%;
+    height: 100%;
+    background-color: #1B1B1B;
+    /* Ніякого контенту всередині, просто темна область */
+}
+
+/* Адаптивність */
+@media (max-width: 900px) {
+    .topics-main {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .topics-sidebar {
+        width: 100%;
+        height: 400px;
+    }
+
+    .topics-content {
+        height: 500px;
+    }
 }
