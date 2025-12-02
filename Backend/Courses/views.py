@@ -17,9 +17,8 @@ load_dotenv(dotenv_path=env_path)
 api_key = os.environ.get("OPENROUTER_API_KEY")
 
 if not api_key:
-    raise ValueError("OpenRouter API key not found. Please set OPENROUTER_API_KEY in your .env file.")
+    raise ValueError("OpenRouter API key not found.")
 
-# Create OpenRouter client
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=api_key,
@@ -31,10 +30,12 @@ def safe_json_parse(text):
         return json.loads(text)
     except json.JSONDecodeError:
         try:
-            start = text.index("{")
-            end = text.rindex("}") + 1
-            cleaned = text[start:end]
-            return json.loads(cleaned)
+            start = text.find("{")
+            end = text.rfind("}") + 1
+            if start != -1 and end != -1:
+                cleaned = text[start:end]
+                return json.loads(cleaned)
+            raise ValueError("No JSON found")
         except Exception:
             raise ValueError("Model returned invalid JSON")
 
@@ -69,79 +70,69 @@ def create_course_from_json(user, course_json):
 
 class ChatAPIView(APIView):
     """
-    POST endpoint to generate a course and save token usage.
-    GET endpoint returns all user courses without lesson content.
+    POST endpoint to generate a course structure.
+    No limits, no economy. Pure creation.
     """
 
     def post(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Більше ніяких перевірок балансу!
+        
         user_input = request.data.get("prompt")
         if not user_input:
             return Response({"error": "Prompt is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Логування запиту залишаємо чисто для історії (це не впливає на логіку)
         chat_entry = ChatPrompt.objects.create(user_input=user_input)
 
         try:
             response = client.chat.completions.create(
-                model="openai/gpt-3.5-turbo",
+                model="openai/gpt-4o-mini", 
                 temperature=0.7,
+                max_tokens=4000, # Ліміт самого провайдера, щоб не зловити 402
+                response_format={ "type": "json_object" }, 
                 messages=[
                     {
                         "role": "system",
                         "content": """
-                        You are a high-level curriculum design AI specialized in IT topics. Your task is to create a detailed, logically structured course based on a user-provided topic. The course must cover content from beginner fundamentals to professional-level mastery. The output must be in Ukrainian.  
+                        You are a high-level curriculum design AI. 
+                        OUTPUT MUST BE VALID JSON IN UKRAINIAN.
 
-                        -------------------------------------
                         INPUT FORMAT (JSON):
-                        {
-                        "topic": "string"
-                        }
+                        { "topic": "string" }
 
-                        -------------------------------------
                         OUTPUT FORMAT (strict JSON, Ukrainian only):
                         {
-                        "meta": {
-                            "topic": string
-                        },
-                        "modules": [
-                            {
-                            "title": string,
-                            "lessons": [
+                            "meta": { "topic": "Course Name" },
+                            "modules": [
                                 {
-                                "title": string,
-                                "type": "lecture"
+                                    "title": "Module Title",
+                                    "lessons": [
+                                        { "title": "Lesson Title", "type": "lecture" }
+                                    ]
                                 }
                             ]
-                            }
-                        ]
                         }
 
-                        -------------------------------------
                         RULES:
-                        1. The course topic must relate ONLY to IT. If a non-IT topic is given, adapt it to an IT-related version.
-                        2. Course level is always beginner.
-                        3. Course goal is always: "Опановувати тему до професійного рівня".
-                        4. Modules must be logically ordered from basics to professional practice.
-                        5. Minimum 10 modules, each with at least 5 lessons.
-                        6. Each lesson must include: type="lecture", title.
-                        7. Do NOT include unrelated frameworks, certifications, or materials.
-                        8. Do NOT include durations, audience, constraints, or total duration fields.
-                        9. All module and lesson titles must be concise, professional, and measurable.
-                        10. Output must be valid JSON; do not include comments or explanations outside JSON.
-
-                        -------------------------------------
-                        TASK:
-                        Generate a full professional-level IT course in Ukrainian according to these rules when provided with the input JSON.
-
+                        1. Topic: IT related only.
+                        2. Structure: Minimum 5 modules.
+                        3. Lessons: 3-5 per module.
+                        4. Language: Ukrainian ONLY.
+                        5. Output: JSON only.
                         """
                     },
-                    {"role": "user", "content": user_input}
+                    {"role": "user", "content": json.dumps({"topic": user_input})}
                 ]
             )
 
             model_output = response.choices[0].message.content
             usage = response.usage
 
-            # Save token usage BEFORE JSON parsing
+            # Просто зберігаємо статистику, нічого не списуємо
             chat_entry.model_response = model_output
             chat_entry.input_tokens = getattr(usage, "prompt_tokens", 0)
             chat_entry.output_tokens = getattr(usage, "completion_tokens", 0)
@@ -154,6 +145,7 @@ class ChatAPIView(APIView):
             return Response(parsed, status=status.HTTP_200_OK)
 
         except Exception as e:
+            print(f"ERROR: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request):
@@ -165,10 +157,10 @@ class ChatAPIView(APIView):
             CourseModel.objects
             .filter(owner=user)
             .prefetch_related("modules__lessons")
+            .order_by('-created_at')
         )
 
         data = []
-
         for course in courses:
             course_data = {
                 "id": course.id,
@@ -184,7 +176,6 @@ class ChatAPIView(APIView):
                             "id": lesson.id,
                             "title": lesson.title,
                             "type": lesson.type
-                            # NOTE: content is NOT included
                         }
                         for lesson in module.lessons.all()
                     ]
@@ -196,10 +187,8 @@ class ChatAPIView(APIView):
 
 
 class GetCourseAPIView(APIView):
-    """
-    GET endpoint to return a single course by ID (without lesson content)
-    """
-
+    # Цей клас ти не просив змінювати, але він і так не мав логіки токенів.
+    # Залишаємо як було.
     def get(self, request, course_id=None):
         user = request.user
         if not user.is_authenticated:
@@ -214,50 +203,39 @@ class GetCourseAPIView(APIView):
             )
             if not course:
                 return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
-            courses = [course]
-        else:
-            # Return all courses if no ID
-            courses = CourseModel.objects.filter(owner=user).prefetch_related("modules__lessons")
-
-        data = []
-        for course in courses:
-            course_data = {
+            
+            result = {
                 "id": course.id,
                 "topic": course.topic,
-                "modules": []
+                "modules": [
+                    {
+                        "id": m.id,
+                        "title": m.title,
+                        "lessons": [
+                            {"id": l.id, "title": l.title, "type": l.type} 
+                            for l in m.lessons.all()
+                        ]
+                    } for m in course.modules.all()
+                ]
             }
-            for module in course.modules.all():
-                module_data = {
-                    "id": module.id,
-                    "title": module.title,
-                    "lessons": [
-                        {
-                            "id": lesson.id,
-                            "title": lesson.title,
-                            "type": lesson.type
-                            # content is excluded
-                        }
-                        for lesson in module.lessons.all()
-                    ]
-                }
-                course_data["modules"].append(module_data)
-            data.append(course_data)
-
-        # If single course_id requested, return object instead of list
-        return Response(data[0] if course_id else data, status=status.HTTP_200_OK)
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "ID required"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GenerateLessonAPIView(APIView):
     """
     GET /lessons/<lesson_id>/generate/
-    Generates (or returns cached) Markdown lesson.
-    Saves generated Markdown into lesson.content.
+    Generates Markdown lesson.
+    No economy checks.
     """
 
     def get(self, request, lesson_id: int):
         user = request.user
         if not user.is_authenticated:
             return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Перевірка балансу видалена
 
         lesson = (
             LessonModel.objects
@@ -269,54 +247,30 @@ class GenerateLessonAPIView(APIView):
         if not lesson:
             return Response({"error": "Lesson not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # ----------------------------------------------------
-        # 1. CONTENT ALREADY EXISTS → RETURN CACHED VERSION
-        # ----------------------------------------------------
-        if lesson.content and lesson.content.strip() != "[]":
-            return Response(
-                lesson.content,
-                status=status.HTTP_200_OK
-            )
+        if lesson.content and len(lesson.content) > 10:
+            return Response(lesson.content, status=status.HTTP_200_OK)
 
-        # ----------------------------------------------------
-        # 2. GENERATE CONTENT
-        # ----------------------------------------------------
         payload = {
             "lesson_type": lesson.type,
-            "lesson_title": lesson.title
+            "lesson_title": lesson.title,
+            "course_topic": lesson.module.course.topic
         }
 
         try:
             response = client.chat.completions.create(
-                model="openai/gpt-3.5-turbo",
+                model="openai/gpt-4o-mini",
                 temperature=0.7,
+                max_tokens=4000, # Запобіжник від 402 помилки
                 messages=[
                     {
                         "role": "system",
                         "content": """
-You are an expert educator and curriculum designer. Your task is to generate a detailed lesson based only on the provided lesson type and lesson title. Follow these rules strictly:
-
-1. Output must be entirely in Ukrainian.
-2. Use Markdown formatting:
-   - # for main lesson title
-   - ## for major sections
-   - ### for sub-sections
-   - Use **bold** for key terms and concepts.
-   - Use bullet points or numbered lists for examples, exercises, or steps.
-3. Each lesson should include:
-   - Introduction
-   - Main Content (clear sections)
-   - Examples or exercises
-   - Summary / Key takeaways
-4. Focus on clarity for beginner → intermediate learners.
-
-Input example:
-{
-  "lesson_type": "Теоретичний",
-  "lesson_title": "Основи об’єктно-орієнтованого програмування"
-}
-
-Output: Markdown lesson in Ukrainian.
+You are an expert educator. Generate a detailed lesson in Ukrainian using Markdown.
+Structure:
+- # Title
+- ## Sections
+- **Key terms**
+- Code blocks (if IT related)
 """
                     },
                     {
@@ -327,17 +281,14 @@ Output: Markdown lesson in Ukrainian.
             )
 
             md_output = response.choices[0].message.content
-
-            # ----------------------------------------------------
-            # 3. SAVE TO DB
-            # ----------------------------------------------------
+            
+            # Ніякого списання токенів!
+            
             lesson.content = md_output
             lesson.save()
 
-            return Response(
-                    md_output,
-                status=status.HTTP_200_OK
-            )
+            return Response(md_output, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            

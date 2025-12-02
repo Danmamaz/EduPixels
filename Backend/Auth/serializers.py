@@ -1,5 +1,5 @@
-# your_auth_app/serializers.py
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import CustomUser
 import re
 
@@ -12,23 +12,24 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         if len(value) > 48:
-            raise serializers.ValidationError("Password must be at most 48 characters long.")
+            raise serializers.ValidationError("Password is too long.")
         if len(value) < 8:
-            raise serializers.ValidationError("Password must be minimum 8 characters.")
-        # simple emoji check: allow only basic printable characters
+            raise serializers.ValidationError("Password is too short.")
         if not re.match(r'^[\x20-\x7E]+$', value):
-            raise serializers.ValidationError("Password contains invalid characters (no emojis allowed).")
-        return value
-
-    def validate_email(self, value):
-        # very basic check for '@' and '.'
-        if '@' not in value or '.' not in value.split('@')[-1]:
-            raise serializers.ValidationError("Enter a valid email address.")
+            raise serializers.ValidationError("Invalid characters.")
         return value
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = CustomUser(**validated_data)
-        user.set_password(password)
-        user.save()
+        user = CustomUser.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
         return user
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        return {
+            "token": data["access"]
+        }
