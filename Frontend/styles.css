@@ -1,12 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;500;600;700&display=swap');
 
 @font-face {
     font-family: 'Digital Pixel';
     src: url('fonts/DigitalPixelV124-Regular.otf') format('opentype');
 }
 
-/* --- АНІМАЦІЇ (KEYFRAMES) --- */
-
+/* ========================================= */
+/* --- АНІМАЦІЇ --- */
+/* ========================================= */
 @keyframes fadeUp {
     from {
         opacity: 0;
@@ -22,12 +23,12 @@
 @keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(-15px);
+        transform: translate(-50%, -20px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, 0);
     }
 }
 
@@ -53,13 +54,19 @@
     }
 }
 
-/* --- ОСНОВНІ СТИЛІ --- */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
+/* ========================================= */
+/* --- ГЛОБАЛЬНІ СТИЛІ --- */
+/* ========================================= */
 body {
     background-color: #120F1A;
-    background-image: url("images/pictuers/Background.png");
     background-repeat: no-repeat;
-    background-size: 100% auto;
+    background-size: cover;
     background-position: top center;
     background-attachment: scroll;
     margin: 0;
@@ -74,26 +81,69 @@ body {
     overflow-x: hidden;
 }
 
+/* Фони для різних сторінок */
+body.bg-landing {
+    background-image: url("images/pictuers/BACKGROUND.jpg");
+    background-size: 100% auto;
+    background-attachment: scroll;
+}
+
+body.bg-app {
+    background-image: url("images/pictuers/background_topics.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+/* --- LOADER / SPINNER --- */
+.loader {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.btn-loader {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+}
+
+.loading-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #888;
+    gap: 15px;
+}
+
+/* ========================================= */
 /* --- HEADER --- */
+/* ========================================= */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    padding: 12px 26px;
-    min-height: 80px;
-    height: 100%;
-
-    background-color: #1B1B1B;
-    margin-top: 40px;
-    border-radius: 24px;
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    padding: 0 26px;
+    height: 80px;
     width: 90%;
     max-width: 1720px;
     box-sizing: border-box;
-    border: 1px solid #40403F;
-
-    position: relative;
-    z-index: 100;
+    background-color: rgba(27, 27, 27, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
+    border: 1px solid rgba(64, 64, 63, 0.5);
+    z-index: 1000;
+    margin-top: 0;
     animation: slideDown 0.8s ease-out forwards;
 }
 
@@ -104,7 +154,6 @@ body {
     gap: 15px;
 }
 
-/* Логотип */
 .logo {
     font-size: 24px;
     color: white;
@@ -112,12 +161,9 @@ body {
     font-weight: 300;
     text-decoration: none;
     cursor: pointer;
-
     margin: 0 30px 0 10px;
     line-height: 1;
     padding-top: 4px;
-
-    display: block;
     transition: transform 0.3s ease, text-shadow 0.3s ease;
 }
 
@@ -134,15 +180,13 @@ body {
     cursor: pointer;
     font-size: 14px;
     font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.3s ease;
     height: 40px;
-    width: auto;
 }
 
 .right button:nth-child(1) {
     background: #333333;
     color: white;
-    box-sizing: border-box;
     border: 1px solid #40403F;
 }
 
@@ -164,15 +208,43 @@ body {
     box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
-/* --- HERO CONTENT --- */
+/* Текст "AI" в хедері (для Topics) */
+.header-icon-text {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 24px;
+    color: #ffffff;
+    margin-right: 15px;
+    letter-spacing: 1px;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Аватар */
+.header-avatar-small {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid #40403F;
+    margin-left: 15px;
+    flex-shrink: 0;
+}
+
+.header-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ========================================= */
+/* --- ЛЕНДІНГ (Index Page) --- */
+/* ========================================= */
 .content {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-top: 210px;
+    margin-top: 270px;
     width: 100%;
-    /* margin-bottom: 250px; */
 }
 
 .content h1 {
@@ -187,13 +259,13 @@ body {
 .content .subtitle {
     font-size: 18px;
     color: #E3D8EF;
-    /* margin-bottom: 40px; */
     margin-top: -12px;
     font-weight: 100;
     opacity: 0;
     animation: fadeUp 0.8s ease-out 0.4s forwards;
 }
 
+/* Поле вводу (Input) */
 .input-container {
     position: relative;
     width: 100%;
@@ -205,12 +277,12 @@ body {
     background: #272725;
     border: 1px solid #40403F;
     border-radius: 60px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    margin-top: 50px;
     padding: 10px 20px 10px 25px;
     box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
     opacity: 0;
     animation: fadeUp 0.8s ease-out 0.6s forwards;
-    margin-top: 50px;
 }
 
 .input-container:focus-within {
@@ -223,20 +295,18 @@ body {
     flex: 1;
     resize: none;
     overflow-y: hidden;
-    line-height: 1.4;
-    transition: height 0.1s ease;
     background: transparent;
     border: none;
     outline: none;
     padding: 8px 0;
     margin-right: 10px;
     color: white;
-    font-size: 14px;
     font-family: inherit;
     box-sizing: border-box;
-    scrollbar-width: none;
-    scrollbar-color: #92918F transparent;
-    -ms-overflow-style: none;
+    /* ЗБІЛЬШЕНИЙ ШРИФТ */
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 .input-container textarea::-webkit-scrollbar {
@@ -245,8 +315,7 @@ body {
 
 .input-container textarea::placeholder {
     color: #8A8A9A;
-    font-size: 16px;
-    font-family: inherit;
+    font-size: 18px;
     transition: color 0.3s ease;
 }
 
@@ -261,11 +330,11 @@ body {
     background: #92918F;
     border: none;
     border-radius: 50%;
-    text-align: center;
     padding: 0;
     cursor: pointer;
-    font-size: 20px;
-    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s ease;
 }
 
@@ -288,7 +357,7 @@ body {
     animation: fadeIn 1s ease-out 1s forwards;
 }
 
-/* --- SLIDER --- */
+/* --- СЛАЙДЕР --- */
 .courses-section {
     width: 90%;
     max-width: 1720px;
@@ -330,7 +399,6 @@ body {
     overflow-x: auto;
     scroll-behavior: smooth;
     scrollbar-width: none;
-    -ms-overflow-style: none;
     padding: 5px 0;
 }
 
@@ -338,7 +406,6 @@ body {
     display: none;
 }
 
-/* Стилі карток курсів */
 .course-card {
     position: relative;
     background-color: #1A1923;
@@ -352,28 +419,6 @@ body {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
 }
-
-@media (max-width: 1400px) {
-    .course-card {
-        width: calc((100% - 40px) / 3);
-        /* 3 картки, 2*20px gap */
-    }
-}
-
-@media (max-width: 1000px) {
-    .course-card {
-        width: calc((100% - 20px) / 2);
-        /* 2 картки, 1*20px gap */
-    }
-}
-
-@media (max-width: 600px) {
-    .course-card {
-        width: 100%;
-        /* 1 картка */
-    }
-}
-
 
 .course-card:hover {
     transform: translateY(-8px) scale(1.02);
@@ -392,7 +437,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Текст поверх карток */
 .card-info {
     position: absolute;
     bottom: 0;
@@ -408,21 +452,17 @@ body {
 }
 
 .course-name {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 14px;
     font-weight: 600;
     color: #FFFFFF;
     letter-spacing: 0.3px;
 }
 
 .course-modules {
-    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12px;
     font-weight: 400;
     color: #B0B0B0;
 }
 
-/* Кнопки слайдера */
 .slider-button {
     position: absolute;
     top: 50%;
@@ -443,28 +483,6 @@ body {
     transition: all 0.3s ease;
 }
 
-.slider-button svg {
-    width: 24px;
-    height: 24px;
-    transition: transform 0.2s ease;
-}
-
-.button_left {
-    left: 15px;
-}
-
-.button_left:hover svg {
-    transform: translateX(-2px);
-}
-
-.button_right {
-    right: 15px;
-}
-
-.button_right:hover svg {
-    transform: translateX(2px);
-}
-
 .slider-container:hover .slider-button {
     opacity: 1;
 }
@@ -479,6 +497,28 @@ body {
     opacity: 0.2 !important;
     cursor: not-allowed;
     transform: translateY(-50%) scale(1);
+}
+
+.button_left {
+    left: 15px;
+}
+
+.button_right {
+    right: 15px;
+}
+
+.slider-button svg {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease;
+}
+
+.button_left:hover svg {
+    transform: translateX(-2px);
+}
+
+.button_right:hover svg {
+    transform: translateX(2px);
 }
 
 .slider-dots {
@@ -497,18 +537,15 @@ body {
     transition: all 0.3s ease;
 }
 
-.dot:hover {
-    background-color: #888;
-    transform: scale(1.2);
-}
-
+.dot:hover,
 .dot.active {
     background-color: #FFFFFF;
     transform: scale(1.2);
 }
 
-/* --- МОДАЛЬНІ ВІКНА --- */
-
+/* ========================================= */
+/* --- MODALS (Login/Signup) --- */
+/* ========================================= */
 .log_in_container,
 .sign_up_container {
     display: none;
@@ -518,7 +555,7 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
+    z-index: 2000;
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(8px);
@@ -528,8 +565,6 @@ body {
     display: flex !important;
     animation: fadeIn 0.3s ease-out;
 }
-
-/* --- СТИЛІ ФОРМИ --- */
 
 .login_form {
     background-color: #1C1C1C;
@@ -551,22 +586,18 @@ body {
 .login-logo {
     font-family: 'Digital Pixel', sans-serif;
     font-size: 24px;
-    color: #ffffff;
-    margin: 0 0 10px 0;
+    margin-bottom: 10px;
     font-weight: 400;
     letter-spacing: 1px;
 }
 
 .login-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 30px;
-    color: #ffffff;
-    margin: 0 0 26px 0;
+    margin-bottom: 26px;
     font-weight: 500;
 }
 
 .login_form label {
-    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     color: #B0B0B0;
     margin-bottom: 12px;
@@ -581,15 +612,10 @@ body {
     padding: 14px 16px;
     color: white;
     font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
     outline: none;
     box-sizing: border-box;
     transition: all 0.2s ease;
     height: 48px;
-}
-
-.input-field::placeholder {
-    color: #666666;
 }
 
 .input-field:focus {
@@ -603,19 +629,19 @@ body {
     margin-bottom: 0 !important;
 }
 
-/* Текст помилки */
 .error-message {
     color: #CF3434;
     font-size: 13px;
     margin-top: 6px;
     margin-bottom: 16px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
     line-height: 1.2;
     animation: fadeIn 0.3s ease-out;
 }
 
-/* --- СПЕЦИФІЧНІ ВІДСТУПИ ДЛЯ ЛОГІНУ --- */
-#username {
+#username,
+#reg-email,
+#reg-password,
+#reg-name {
     margin-bottom: 24px;
 }
 
@@ -623,14 +649,6 @@ body {
     margin-bottom: 32px;
 }
 
-/* --- СПЕЦИФІЧНІ ВІДСТУПИ ДЛЯ РЕЄСТРАЦІЇ --- */
-#reg-email,
-#reg-password,
-#reg-name {
-    margin-bottom: 24px;
-}
-
-/* Блок другого пароля */
 #confirm-password-block {
     width: 100%;
     margin-bottom: 40px;
@@ -655,7 +673,6 @@ body {
     padding: 0;
     font-size: 14px;
     font-weight: 600;
-    font-family: 'Plus Jakarta Sans', sans-serif;
     cursor: pointer;
     transition: all 0.2s ease;
     height: 48px;
@@ -670,16 +687,11 @@ body {
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
-.login-btn:active {
-    transform: scale(0.98);
-}
-
 .privacy-text {
     font-size: 14px;
     color: #666666;
     margin-top: 24px;
     line-height: 1.4;
-    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .privacy-text a {
@@ -693,12 +705,9 @@ body {
     color: #ffffff;
 }
 
-
-
-
-/* --- СТИЛІ ДЛЯ СТОРІНКИ ПРОФІЛЮ (profile.html) --- */
-
-/* Хедер */
+/* ========================================= */
+/* --- PROFILE PAGE --- */
+/* ========================================= */
 .header-search-container {
     flex-grow: 1;
     max-width: 500px;
@@ -724,7 +733,6 @@ body {
     outline: none;
     color: white;
     font-size: 14px;
-    font-family: inherit;
 }
 
 .profile-header-input::placeholder {
@@ -748,21 +756,17 @@ body {
     object-fit: contain;
 }
 
-/* --- ОСНОВНА СІТКА ПРОФІЛЮ --- */
-
 .profile-main {
     width: 90%;
     max-width: 1720px;
-    margin: 40px auto 100px auto;
+    margin: 150px auto 100px auto;
     display: flex;
     gap: 24px;
-    /* Трохи збільшив відступ між профілем і курсами */
     box-sizing: border-box;
     align-items: flex-start;
     animation: fadeUp 0.8s ease-out 0.2s forwards;
 }
 
-/* Сайдбар тепер має ширину 400px згідно з прототипом */
 .profile-sidebar {
     width: 400px;
     flex-shrink: 0;
@@ -770,18 +774,14 @@ body {
     flex-direction: column;
 }
 
-/* Сітка контенту адаптована під широкі картки (630px) */
 .profile-content-grid {
     flex-grow: 1;
     display: grid;
-    /* Намагаємось тримати картки шириною ~630px, або розтягувати їх */
     grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
-    /* Висота рядка 300px згідно з прототипом */
     grid-auto-rows: 300px;
     gap: 24px;
 }
 
-/* Спільний стиль карток */
 .profile-card,
 .content-card {
     background-color: #1B1B1B;
@@ -796,25 +796,18 @@ body {
     border-color: #666;
 }
 
-/* --- КАРТКА ПРОФІЛЮ (Оновлені розміри) --- */
 .profile-info-card {
-    /* Фіксована висота 499px згідно з прототипом */
     height: 499px;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* Центрування по вертикалі */
     position: relative;
     padding: 40px 30px;
-    /* Більше відступів */
 }
 
 .profile-avatar-container {
-    /* Збільшено розмір аватара. 
-       Хоча виділення 300x300, але з урахуванням padding картки, 
-       робимо максимально можливий розмір, щоб виглядало гармонійно */
     width: 260px;
     height: 260px;
     border-radius: 50%;
@@ -834,7 +827,6 @@ body {
 .profile-name {
     font-family: 'Digital Pixel', sans-serif;
     font-size: 24px;
-    /* Трохи збільшив шрифт імені */
     font-weight: 400;
     margin: 0 0 -10px 0;
     color: #FFFFFF;
@@ -847,8 +839,7 @@ body {
     font-size: 16px;
     font-weight: 400;
     color: #888;
-    margin: 0 0 0px 0;
-    /* Більший відступ до кнопки */
+    margin: 0;
     word-break: break-all;
     text-align: center;
 }
@@ -856,7 +847,6 @@ body {
 .edit-profile-btn {
     width: 100%;
     max-width: 340px;
-    /* Обмеження ширини кнопки, щоб була як на макеті */
     min-height: 36px;
     background: #272725;
     color: #888;
@@ -864,11 +854,9 @@ body {
     border-radius: 12px;
     cursor: pointer;
     font-size: 14px;
-    font-family: "Plus Jakarta Sans", sans-serif;
     font-weight: 500;
     transition: all 0.2s ease;
     margin-top: auto;
-    /* Притискає кнопку до низу, якщо є вільне місце */
 }
 
 .edit-profile-btn:hover {
@@ -877,15 +865,12 @@ body {
     border-color: #666;
 }
 
-/* --- КАРТКА КУРСУ (Python) --- */
-/* Вона автоматично отримає висоту 300px від grid-auto-rows */
 .course-progress-card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     background-color: #1B1B1B;
     padding: 30px 35px;
-    /* Трохи підправив відступи */
 }
 
 .course-progress-card .course-header {
@@ -909,14 +894,12 @@ body {
     gap: 8px;
 }
 
-/* Іконка модулів */
 .course-progress-card .modules-count::before {
     content: '';
     display: inline-block;
     width: 18px;
     height: 18px;
     background-image: url('images/icons/python.png');
-    /* Переконайся, що шлях вірний */
     background-size: contain;
     background-repeat: no-repeat;
     filter: grayscale(1);
@@ -926,17 +909,14 @@ body {
 .course-progress-card .course-name-big {
     font-family: 'Digital Pixel', sans-serif;
     font-size: 16px;
-    /* Збільшив шрифт заголовку курсу для розміру картки 630px */
     font-weight: 400;
     color: #FFFFFF;
     margin: 10px 0;
 }
 
-/* Смуга прогресу */
 .progress-bar-container {
     width: 100%;
     height: 6px;
-    /* Трохи товстіша лінія */
     background-color: #333;
     border-radius: 3px;
     margin-top: auto;
@@ -958,7 +938,362 @@ body {
     color: #7CFC00;
 }
 
-/* МЕДІА-ЗАПИТИ */
+/* ========================================= */
+/* --- TOPICS / APP VIEW STYLES (NEW) --- */
+/* ========================================= */
+
+.topics-main {
+    width: 90%;
+    max-width: 1720px;
+    margin: 140px auto 40px auto;
+    display: flex;
+    gap: 24px;
+    height: calc(100vh - 180px);
+    min-height: 600px;
+    padding: 0 20px;
+    box-sizing: border-box;
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+/* ЛІВИЙ САЙДБАР */
+.topics-sidebar-card {
+    width: 300px;
+    flex-shrink: 0;
+    background-color: rgba(22, 22, 22, 0.95);
+    border: 1px solid #2C2C2C;
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    margin: 0 0 20px 5px;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+
+.sidebar-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 5px;
+}
+
+.sidebar-items-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-items-list::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 2px;
+}
+
+/* Кнопка модуля */
+.module-btn {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.module-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(4px);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.module-btn.active {
+    background: #6366f1;
+    border-color: #6366f1;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.module-btn-header {
+    font-family: 'Digital Pixel', sans-serif;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.module-btn.active .module-btn-header {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.module-btn-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #e0e0e0;
+    line-height: 1.4;
+}
+
+.module-btn.active .module-btn-title {
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ПРАВА ЧАСТИНА (Контент) */
+.topics-content-card {
+    flex-grow: 1;
+    background-color: rgba(22, 22, 22, 0.95);
+    border: 1px solid #2C2C2C;
+    border-radius: 24px;
+    padding: 40px;
+    position: relative;
+    overflow-y: auto;
+    display: block;
+}
+
+.topics-content-card::-webkit-scrollbar {
+    width: 8px;
+}
+
+.topics-content-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.topics-content-card::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 4px;
+}
+
+/* Список уроків (Праворуч - Крок 1) */
+.lessons-grid-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lesson-card-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid #333;
+    padding: 18px 24px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.lesson-card-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #6366f1;
+    transform: translateY(-2px);
+}
+
+.lesson-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.lesson-number {
+    font-family: 'Digital Pixel', sans-serif;
+    color: #666;
+    font-size: 14px;
+    min-width: 40px;
+}
+
+.lesson-title {
+    color: white;
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.lesson-type {
+    font-size: 11px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.lesson-type.lecture {
+    background: rgba(74, 222, 128, 0.1);
+    color: #4ade80;
+}
+
+.lesson-type.practice {
+    background: rgba(251, 146, 60, 0.1);
+    color: #fb923c;
+}
+
+.homework-card {
+    border-color: rgba(251, 146, 60, 0.3);
+    margin-top: 15px;
+}
+
+.homework-card:hover {
+    border-color: #fb923c;
+    box-shadow: 0 0 15px rgba(251, 146, 60, 0.1);
+}
+
+/* --- MARKDOWN STYLES (Контент уроку - Крок 2) --- */
+.content-view-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    animation: fadeIn 0.4s ease;
+}
+
+.lesson-content-view {
+    color: #e0e0e0;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.lesson-content-view h1,
+.lesson-content-view h2,
+.lesson-content-view h3 {
+    color: #fff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+}
+
+.lesson-content-view h1 {
+    font-size: 28px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+    color: #6366f1;
+}
+
+.lesson-content-view h2 {
+    font-size: 22px;
+    color: #a5b4fc;
+}
+
+.lesson-content-view p {
+    margin-bottom: 1.2em;
+}
+
+.lesson-content-view ul,
+.lesson-content-view ol {
+    margin-bottom: 1.2em;
+    padding-left: 25px;
+    color: #d1d5db;
+}
+
+.lesson-content-view li {
+    margin-bottom: 0.5em;
+}
+
+.lesson-content-view pre {
+    background: #1e1e2e;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    overflow-x: auto;
+    margin: 25px 0;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.lesson-content-view code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+}
+
+.lesson-content-view p code,
+.lesson-content-view li code {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Кнопки в контенті */
+.copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #888;
+    z-index: 5;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.back-to-list-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    margin-bottom: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.back-to-list-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.generate-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    padding: 12px 24px;
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 20px;
+    transition: transform 0.2s;
+}
+
+.generate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+}
+
+.generate-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1400px) {
+    .course-card {
+        width: calc((100% - 40px) / 3);
+    }
+}
 
 @media (max-width: 1300px) {
     .profile-main {
@@ -971,7 +1306,6 @@ body {
         max-width: 400px;
     }
 
-    /* Якщо екран малий, повертаємо звичну висоту */
     .profile-info-card {
         height: auto;
         min-height: 499px;
@@ -980,7 +1314,29 @@ body {
     .profile-content-grid {
         width: 100%;
         grid-template-columns: 1fr;
-        /* Одна колонка на менших екранах */
+    }
+}
+
+@media (max-width: 1000px) {
+    .course-card {
+        width: calc((100% - 20px) / 2);
+    }
+}
+
+@media (max-width: 900px) {
+    .topics-main {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .topics-sidebar-card {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+
+    .topics-content-card {
+        min-height: 500px;
     }
 }
 
@@ -1004,143 +1360,162 @@ body {
     }
 }
 
-
-
-/* --- СТИЛІ ДЛЯ СТОРІНКИ ТЕМ (TOPICS) --- */
-
-/* Додаткові елементи в хедері (справа) */
-.header-icon-text {
-    font-family: 'Digital Pixel', sans-serif;
-    font-size: 20px;
-    color: #ffffff;
-    cursor: pointer;
-    margin-left: 15px;
-}
-
-.header-avatar-small {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 1px solid #40403F;
-    margin-left: 15px;
-    flex-shrink: 0;
-}
-
-.header-avatar-small img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Основний контейнер сторінки */
-.topics-main {
-    width: 90%;
-    max-width: 1720px;
-    margin: 30px auto 60px auto;
-    /* Відступ від хедера такий самий, як на скріншоті */
-    display: flex;
-    gap: 24px;
-    height: calc(100vh - 180px);
-    /* Розтягуємо на весь екран мінус хедер */
-    min-height: 600px;
-    box-sizing: border-box;
-    animation: fadeUp 0.6s ease-out forwards;
-}
-
-/* --- ЛІВА КОЛОНКА (Сайдбар) --- */
-.topics-sidebar {
-    width: 320px;
-    /* Фіксована ширина, схожа на макет */
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar-inner {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 25px;
-    background-color: #1B1B1B;
-    /* Темний фон */
-}
-
-.sidebar-title {
-    font-family: 'Digital Pixel', sans-serif;
-    font-size: 16px;
-    color: #B0B0B0;
-    /* Світло-сірий текст */
-    margin: 0 0 20px 10px;
-    /* Відступ зліва і знизу */
-    letter-spacing: 0.5px;
-    font-weight: 400;
-}
-
-.sidebar-items-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    height: 100%;
-    /* Розтягуємо на всю висоту */
-    overflow-y: auto;
-    /* Дозволяємо вертикальний скрол (якщо треба) */
-    overflow-x: hidden;
-    /* ЗАБОРОНЯЄМО горизонтальний скрол */
-    padding-right: 5px;
-
-    /* Прибираємо вигляд скролбару для Firefox */
-    scrollbar-width: none;
-}
-
-/* Прибираємо вигляд скролбару для Chrome, Safari та Opera */
-.sidebar-items-list::-webkit-scrollbar {
-    display: none;
-}
-
-/* Пусті прямокутники в сайдбарі */
-.sidebar-item {
-    width: 100%;
-    height: 60px;
-    background-color: #272725;
-    /* Трохи світліший за фон картки */
-    border-radius: 16px;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.sidebar-item:hover {
-    border-color: #444;
-    background-color: #30302E;
-}
-
-/* --- ПРАВА КОЛОНКА (Основна зона) --- */
-.topics-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.empty-workspace {
-    width: 100%;
-    height: 100%;
-    background-color: #1B1B1B;
-    /* Ніякого контенту всередині, просто темна область */
-}
-
-/* Адаптивність */
-@media (max-width: 900px) {
-    .topics-main {
-        flex-direction: column;
-        height: auto;
-    }
-
-    .topics-sidebar {
+@media (max-width: 600px) {
+    .course-card {
         width: 100%;
-        height: 400px;
+    }
+}
+
+
+/* ========================================= */
+/* --- LOADER & ANIMATIONS (ОНОВЛЕНО) --- */
+/* ========================================= */
+
+/* Красивий спінер */
+.loader {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top: 2px solid #ffffff;
+    /* Яскрава частина */
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Для великих блоків завантаження (центр екрану) */
+.loader-large {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+    border-top-width: 3px;
+    border-top-color: #6366f1;
+    /* Акцентний колір */
+}
+
+/* Анімація обертання */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
 
-    .topics-content {
-        height: 500px;
+    100% {
+        transform: rotate(360deg);
     }
+}
+
+/* Стилі для кнопок у стані завантаження */
+button:disabled .loader {
+    margin: 0;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Відступ між текстом і лоадером, якщо текст лишається */
+}
+
+/* Вирівнювання лоадера на сторінках */
+.loading-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px;
+    color: #888;
+    gap: 15px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    animation: fadeIn 0.3s ease;
+}
+
+
+/* --- АКТИВНА КНОПКА ГЕНЕРАЦІЇ --- */
+#generate-course-btn {
+    background: #444;
+    /* Темний за замовчуванням */
+    color: #888;
+    cursor: not-allowed;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 0.5;
+}
+
+#generate-course-btn.active {
+    background: #FFFFFF !important;
+    /* Білий коли активний */
+    color: #000 !important;
+    cursor: pointer;
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+#generate-course-btn img {
+    filter: invert(1);
+    /* Інвертуємо колір іконки для темного фону */
+    transition: filter 0.3s ease;
+}
+
+#generate-course-btn.active img {
+    filter: invert(0);
+    /* Чорна іконка на білому фоні */
+}
+
+/* --- КНОПКА ВИДАЛЕННЯ КУРСУ (На картці) --- */
+.delete-course-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #ff4d4d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+}
+
+.delete-course-btn:hover {
+    background: #ff4d4d;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* --- СТИЛІ ДЛЯ НОВИХ МОДАЛОК --- */
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid #444;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #333;
+}
+
+.btn-danger {
+    background: #cf3434;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: #a52a2a;
+    box-shadow: 0 0 10px rgba(207, 52, 52, 0.4);
 }

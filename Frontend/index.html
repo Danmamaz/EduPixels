@@ -5,18 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduPixels</title>
+    <link rel="icon" href="images/icons/icon_site.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
+<body class="bg-landing">
     <header class="header">
         <div class="left">
             <a href="index.html" class="logo">EduPixels</a>
         </div>
 
-        <div class="right">
+        <div class="right" id="auth-buttons">
             <button id="header-login-btn">Log in</button>
             <button id="header-signup-btn">Get started</button>
+        </div>
+
+        <div class="right" id="user-profile" style="display: none;">
+            <div class="header-avatar-small">
+                <a href="profile.html"><img src="images/pictuers/user_photo.png" alt="User" /></a>
+            </div>
         </div>
     </header>
 
@@ -25,8 +32,8 @@
         <p class="subtitle">ШІ збере твій курс по пікселях — швидко, розумно, красиво.</p>
 
         <div class="input-container">
-            <textarea placeholder="Напишіть, що ви хочете вивчити" rows="1"></textarea>
-            <button><img src="images/icons/Vector.svg" alt=""></button>
+            <textarea id="course-prompt" placeholder="Напишіть, що ви хочете вивчити" rows="1"></textarea>
+            <button id="generate-course-btn"><img src="images/icons/Vector.svg" alt=""></button>
         </div>
 
         <p class="postscript">*Безкоштовно можна згенерувати лише один курс.</p>
@@ -174,6 +181,12 @@
                 Продовжуючи, ти погоджуєшся з нашими <a href="#">політиками конфіденційності</a>
             </p>
         </form>
+    </div>
+
+    <div id="backend-status"
+        style="position: fixed; bottom: 10px; right: 10px; padding: 10px; background: rgba(0,0,0,0.7); color: white; border-radius: 5px; font-size: 12px; z-index: 9999;">
+        Backend: <span id="status-text">Checking...</span> <span id="status-dot"
+            style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: yellow; margin-left: 5px;"></span>
     </div>
 
     <script src="script.js"></script>

@@ -1,57 +1,264 @@
 <!DOCTYPE html>
 <html lang="uk">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Теми | EduPixels</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
 
-  <body style="background-image: url('images/pictuers/UserPage.png');">
-    <header class="header">
-      <div class="left">
-        <a href="index.html" class="logo">EduPixels</a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Навчання | EduPixels</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+</head>
+
+<body class="bg-app">
+
+  <header class="header">
+    <div class="left">
+      <a href="index.html" class="logo">EduPixels</a>
+    </div>
+
+    <div class="right">
+      <div class="header-icon-text">AI</div>
+
+      <div class="header-avatar-small"
+        style="border: 1px solid #444; border-radius: 50%; overflow: hidden; width: 40px; height: 40px;">
+        <a href="profile.html">
+          <img src="images/pictuers/user_photo.png" alt="User" style="width: 100%; height: 100%; object-fit: cover;" />
+        </a>
       </div>
+    </div>
+  </header>
 
-      <div class="header-search-container">
-        <input type="text" placeholder="Пошук за темою чи запитанням" class="profile-header-input" style="text-align: center;" />
+  <main class="topics-main">
+    <aside class="topics-sidebar-card">
+      <h3 class="sidebar-title" id="course-topic-title">Завантаження...</h3>
+      <div class="sidebar-items-list" id="modules-list">
       </div>
+    </aside>
 
-      <div class="right">
-        <div class="streak-info">
-          <img src="images/icons/flame.png" alt="Fire" class="fire-icon-placeholder" />
-          <span>10 ДНІВ</span>
-        </div>
-
-        <div class="header-icon-text">AI</div>
-
-        <div class="header-avatar-small">
-          <img src="images/pictuers/user_photo.png" alt="User" />
-        </div>
+    <section class="topics-content-card" id="main-area">
+      <div id="welcome-state"
+        style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: #666;">
+        <img src="images/icons/Vector.svg" style="width: 48px; opacity: 0.2; margin-bottom: 20px;">
+        <p style="font-size: 16px; color: #888;">Оберіть модуль ліворуч,</p>
+        <p style="font-size: 14px; color: #555;">щоб побачити матеріали курсу</p>
       </div>
-    </header>
+    </section>
+  </main>
 
-    <main class="topics-main">
-      <div class="topics-sidebar">
-        <div class="content-card sidebar-inner">
-          <h3 class="sidebar-title">Тут якість теми</h3>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) { window.location.href = 'index.html'; return; }
 
-          <div class="sidebar-items-list">
-            <div class="sidebar-item"></div>
-            <div class="sidebar-item"></div>
-            <div class="sidebar-item"></div>
-            <div class="sidebar-item"></div>
-            <div class="sidebar-item"></div>
-            <div class="sidebar-item"></div>
+      const urlParams = new URLSearchParams(window.location.search);
+      const courseId = urlParams.get('id');
+
+      if (!courseId || courseId === 'undefined') {
+        window.location.href = 'profile.html';
+        return;
+      }
+
+      const modulesListEl = document.getElementById('modules-list');
+      const courseTitleEl = document.getElementById('course-topic-title');
+      const mainAreaEl = document.getElementById('main-area');
+
+      // Налаштування Markdown
+      marked.setOptions({
+        highlight: function (code, lang) {
+          const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+          return hljs.highlight(code, { language }).value;
+        },
+        breaks: true, // Важливо для переносів
+        gfm: true
+      });
+
+      // 1. Завантаження
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/courses/${courseId}/`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error("Помилка завантаження");
+
+        const data = await response.json();
+        renderSidebar(data);
+
+      } catch (error) {
+        console.error(error);
+        mainAreaEl.innerHTML = '<p style="color:red; text-align:center;">Не вдалося завантажити курс</p>';
+      }
+
+      // 2. Рендер Сайдбару (ОНОВЛЕНО ДИЗАЙН)
+      function renderSidebar(data) {
+        courseTitleEl.textContent = data.topic; // Шрифт зменшено в CSS (.sidebar-title)
+        modulesListEl.innerHTML = '';
+
+        data.modules.forEach((module, index) => {
+          const btn = document.createElement('div');
+          btn.className = 'module-btn'; // Новий клас
+          btn.innerHTML = `
+            <div class="module-btn-header">Module ${index + 1}</div>
+            <div class="module-btn-title">${module.title}</div>
+          `;
+
+          btn.onclick = () => {
+            document.querySelectorAll('.module-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            showModuleLessons(module, index);
+          };
+
+          modulesListEl.appendChild(btn);
+        });
+      }
+
+      // 3. Список уроків (Праворуч)
+      function showModuleLessons(module, modIndex) {
+        mainAreaEl.innerHTML = `
+          <div style="width: 100%; max-width: 800px; margin: 0 auto; animation: fadeIn 0.3s ease;">
+            <h2 style="color: white; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px;">
+              <span style="color: #6366f1; font-size: 18px;">Mod ${modIndex + 1}:</span> ${module.title}
+            </h2>
+            
+            <div class="lessons-grid-list">
+              </div>
           </div>
-        </div>
-      </div>
+        `;
 
-      <div class="topics-content">
-        <div class="content-card empty-workspace"></div>
-      </div>
-    </main>
+        const listContainer = mainAreaEl.querySelector('.lessons-grid-list');
 
-    <script src="script.js"></script>
-  </body>
+        module.lessons.forEach((lesson, lIndex) => {
+          const card = document.createElement('div');
+          card.className = 'lesson-card-item';
+          card.innerHTML = `
+            <div class="lesson-info">
+              <span class="lesson-number">${modIndex + 1}.${lIndex + 1}</span>
+              <span class="lesson-title">${lesson.title}</span>
+            </div>
+            <span class="lesson-type ${lesson.type}">${lesson.type === 'lecture' ? 'Лекція' : 'Практика'}</span>
+          `;
+          card.onclick = () => loadLessonContent(lesson.id, module, modIndex);
+          listContainer.appendChild(card);
+        });
+
+        // Картка ДЗ
+        const hwCard = document.createElement('div');
+        hwCard.className = 'lesson-card-item homework-card';
+        hwCard.innerHTML = `
+            <div class="lesson-info">
+              <span class="lesson-number">📝</span>
+              <span class="lesson-title">Домашнє завдання</span>
+            </div>
+            <span class="lesson-type practice">Task</span>
+        `;
+        hwCard.onclick = () => showHomework(module, modIndex);
+        listContainer.appendChild(hwCard);
+      }
+
+      // 4. Контент уроку
+      async function loadLessonContent(lessonId, module, modIndex) {
+        mainAreaEl.innerHTML = '<div style="text-align:center; margin-top:50px; color:#888;">Завантаження уроку...</div>';
+
+        try {
+          const res = await fetch(`http://127.0.0.1:8000/courses/lessons/${lessonId}/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+
+          // ВАЖЛИВО: Виправляємо переноси рядків перед парсингом
+          let cleanContent = data.content ? data.content.replace(/\\n/g, '\n') : '';
+          const htmlContent = DOMPurify.sanitize(marked.parse(cleanContent));
+
+          renderContentView(htmlContent, module, modIndex);
+
+        } catch (err) {
+          mainAreaEl.innerHTML = '<p style="color:red; text-align:center;">Помилка завантаження контенту</p>';
+        }
+      }
+
+      // 5. Домашнє завдання
+      function showHomework(module, modIndex) {
+        if (!module.homework || !module.homework.trim()) {
+          renderContentView(`
+             <h1>Домашнє завдання</h1>
+             <p>Завдання ще не створено.</p>
+             <button id="gen-hw-btn" class="generate-btn">Згенерувати завдання (AI)</button>
+           `, module, modIndex, true);
+
+          setTimeout(() => {
+            const btn = document.getElementById('gen-hw-btn');
+            if (btn) {
+              btn.onclick = async () => {
+                btn.innerText = "Генерую...";
+                btn.disabled = true;
+                try {
+                  const res = await fetch(`http://127.0.0.1:8000/courses/modules/${module.id}/generate_homework/`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  });
+                  let text = await res.text();
+                  // Зберігаємо та оновлюємо
+                  module.homework = text;
+                  showHomework(module, modIndex);
+                } catch (e) { alert("Помилка генерації"); btn.disabled = false; }
+              }
+            }
+          }, 0);
+
+        } else {
+          // ВАЖЛИВО: Виправляємо переноси рядків (\n -> real newline)
+          let cleanMd = module.homework.replace(/\\n/g, '\n');
+          const htmlContent = DOMPurify.sanitize(marked.parse(cleanMd));
+          renderContentView(`<h1>Домашнє завдання</h1>${htmlContent}`, module, modIndex);
+        }
+      }
+
+      // Допоміжна функція рендеру
+      function renderContentView(html, module, modIndex, skipCodeInit = false) {
+        mainAreaEl.innerHTML = `
+          <div class="content-view-wrapper">
+            <button class="back-to-list-btn" id="back-btn">
+               <span style="font-size:18px;">←</span> Назад до списку
+            </button>
+            <div class="lesson-content-view">
+               ${html}
+            </div>
+          </div>
+        `;
+
+        document.getElementById('back-btn').onclick = () => showModuleLessons(module, modIndex);
+
+        if (!skipCodeInit) initCodeBlocks();
+      }
+
+      // Ініціалізація блоків коду (Підсвітка + Копіювання)
+      function initCodeBlocks() {
+        document.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightElement(block);
+        });
+
+        document.querySelectorAll('pre').forEach((preBlock) => {
+          if (preBlock.querySelector('.copy-btn')) return;
+          const button = document.createElement('button');
+          button.className = 'copy-btn';
+          button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+
+          button.addEventListener('click', () => {
+            const code = preBlock.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+              button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+              setTimeout(() => {
+                button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+              }, 2000);
+            });
+          });
+          preBlock.appendChild(button);
+        });
+      }
+    });
+  </script>
+</body>
+
 </html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Урок | EduPixels</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Markdown renderer -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        .lesson-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .lesson-header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lesson-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .lesson-meta {
+            color: #a0a0a0;
+            font-size: 1rem;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .lesson-type-badge {
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .lesson-type-lecture {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .lesson-type-practice {
+            background: rgba(251, 146, 60, 0.2);
+            color: #fb923c;
+        }
+
+        .lesson-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            line-height: 1.8;
+        }
+
+        .lesson-content h1,
+        .lesson-content h2,
+        .lesson-content h3 {
+            color: white;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .lesson-content h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .lesson-content h2 {
+            font-size: 1.6rem;
+            color: #6366f1;
+        }
+
+        .lesson-content h3 {
+            font-size: 1.3rem;
+        }
+
+        .lesson-content p {
+            margin: 15px 0;
+        }
+
+        .lesson-content code {
+            background: rgba(99, 102, 241, 0.15);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            color: #a5b4fc;
+            font-size: 0.9em;
+        }
+
+        .lesson-content pre {
+            background: #1e1e2e;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .lesson-content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* Syntax highlighting adjustments */
+        .lesson-content pre code.hljs {
+            background: transparent;
+            padding: 0;
+        }
+
+        .lesson-content ul,
+        .lesson-content ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        .lesson-content li {
+            margin: 8px 0;
+        }
+
+        .lesson-content strong {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .lesson-content blockquote {
+            border-left: 4px solid #6366f1;
+            padding-left: 20px;
+            margin: 20px 0;
+            color: #a0a0a0;
+            font-style: italic;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-5px);
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            color: #6366f1;
+            font-size: 1.2rem;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #f87171;
+        }
+
+        .generate-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .generate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .generate-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body style="background-image: url('images/pictuers/UserPage.png');">
+    <header class="header">
+        <div class="left">
+            <a href="index.html" class="logo">EduPixels</a>
+        </div>
+
+        <div class="header-search-container">
+            <input type="text" placeholder="Пошук..." class="profile-header-input" />
+        </div>
+
+        <div class="right">
+            <div class="header-icon-text">AI</div>
+            <div class="header-avatar-small">
+                <a href="profile.html"><img src="images/pictuers/user_photo.png" alt="User" /></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="lesson-container">
+        <a href="#" class="back-button" id="back-button">
+            <span>←</span>
+            <span>Назад до курсу</span>
+        </a>
+
+        <div class="lesson-header">
+            <h1 class="lesson-title" id="lesson-title">Завантаження...</h1>
+            <div class="lesson-meta">
+                <span class="lesson-type-badge lesson-type-lecture" id="lesson-type">Лекція</span>
+                <span id="lesson-course">Курс</span>
+            </div>
+        </div>
+
+        <div id="lesson-content-container">
+            <div class="loading-spinner">
+                ⏳ Завантаження уроку...
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('accessToken')
+
+            if (!token) {
+                window.location.href = 'index.html'
+                return
+            }
+
+            // Отримуємо параметри з URL
+            const urlParams = new URLSearchParams(window.location.search)
+            const lessonId = urlParams.get('id')
+            const courseId = urlParams.get('courseId')
+
+            if (!lessonId) {
+                alert('ID уроку не знайдено')
+                window.location.href = 'profile.html'
+                return
+            }
+
+            // Налаштовуємо кнопку "Назад"
+            const backButton = document.getElementById('back-button')
+            if (courseId) {
+                backButton.href = `course.html?id=${courseId}`
+            } else {
+                backButton.href = 'profile.html'
+            }
+
+            const lessonTitleEl = document.getElementById('lesson-title')
+            const lessonTypeEl = document.getElementById('lesson-type')
+            const lessonCourseEl = document.getElementById('lesson-course')
+            const contentContainer = document.getElementById('lesson-content-container')
+
+            try {
+                // Запит на генерацію/отримання уроку
+                const response = await fetch(`http://127.0.0.1:8000/courses/lessons/${lessonId}/`, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+
+                if (response.status === 401) {
+                    localStorage.removeItem('accessToken')
+                    window.location.href = 'index.html'
+                    return
+                }
+
+                if (!response.ok) {
+                    throw new Error('Урок не знайдено')
+                }
+
+                // Отримуємо Markdown контент
+                const markdownContent = await response.json()
+
+                // Налаштовуємо marked для використання highlight.js
+                marked.setOptions({
+                    highlight: function (code, lang) {
+                        if (lang && hljs.getLanguage(lang)) {
+                            try {
+                                return hljs.highlight(code, { language: lang }).value;
+                            } catch (err) { }
+                        }
+                        return hljs.highlightAuto(code).value;
+                    },
+                    breaks: true,
+                    gfm: true
+                });
+
+                // Конвертуємо Markdown в HTML
+                const htmlContent = marked.parse(markdownContent)
+
+                // Відображаємо контент
+                contentContainer.innerHTML = `<div class="lesson-content">${htmlContent}</div>`
+
+                // Додатково підсвічуємо код, якщо marked не спрацював
+                document.querySelectorAll('pre code').forEach((block) => {
+                    if (!block.classList.contains('hljs')) {
+                        hljs.highlightElement(block);
+                    }
+                });
+
+                // Оновлюємо заголовок (можна отримати з API, але поки залишимо так)
+                lessonTitleEl.textContent = 'Урок ' + lessonId
+
+            } catch (error) {
+                console.error('Помилка:', error)
+                contentContainer.innerHTML = `
+          <div class="error-message">
+            <p>❌ Не вдалося завантажити урок</p>
+            <p style="font-size: 0.9rem; color: #a0a0a0;">${error.message}</p>
+            <a href="${backButton.href}" style="color: #6366f1; text-decoration: none; margin-top: 10px; display: inline-block;">Повернутися назад</a>
+          </div>
+        `
+            }
+        })
+    </script>
+</body>
+
+</html>

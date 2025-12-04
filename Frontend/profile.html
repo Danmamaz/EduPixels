@@ -1,115 +1,217 @@
 <!DOCTYPE html>
 <html lang="uk">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Профіль | EduPixels</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
 
-  <body style="background-image: url('images/pictuers/UserPage.png');">
-    <header class="header">
-      <div class="left">
-        <a href="index.html" class="logo">EduPixels</a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Профіль | EduPixels</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="bg-app">
+  <header class="header">
+    <div class="left">
+      <a href="index.html" class="logo">EduPixels</a>
+    </div>
+
+    <div class="header-search-container">
+      <input type="text" placeholder="Твій проект..." class="profile-header-input" />
+    </div>
+
+    <div class="right">
+      <div class="streak-info">
+        <img src="images/icons/flame.png" alt="Fire" class="fire-icon-placeholder" />
+        <span>10 ДНІВ</span>
       </div>
+      <button id="logout-btn"
+        style="margin-left: 15px; padding: 5px 15px; border-radius: 8px; border: none; cursor: pointer;">Вийти</button>
+    </div>
+  </header>
 
-      <div class="header-search-container">
-        <input type="text" placeholder="Твій проект..." class="profile-header-input" />
-      </div>
-
-      <div class="right">
-        <div class="streak-info">
-          <img src="images/icons/flame.png" alt="Fire" class="fire-icon-placeholder" />
-          <span>10 ДНІВ</span>
-        </div>
-        <button id="logout-btn" style="margin-left: 15px; padding: 5px 15px; border-radius: 8px; border: none; cursor: pointer;">Вийти</button>
-      </div>
-    </header>
-
-    <main class="profile-main">
-      <div class="profile-sidebar">
-        <div class="profile-card profile-info-card">
-          <div class="profile-avatar-container">
-            <img src="images/pictuers/user_photo.png" alt="Profile Avatar" class="profile-avatar-image" />
-          </div>
-
-          <h3 class="profile-name">Завантаження...</h3>
-          <p class="profile-email">...</p>
-
-          <button class="edit-profile-btn">Редагувати профіль</button>
-        </div>
-      </div>
-
-      <div class="profile-content-grid">
-        <div class="content-card course-progress-card">
-          <div class="course-header">
-            <img src="images/icons/python.png" alt="Python" class="course-icon-placeholder" />
-            <p class="modules-count">9 модулів</p>
-            <h4 class="course-name-big">Python</h4>
-          </div>
-
-          <div class="progress-bar-container">
-            <div class="progress-bar" style="width: 10%;"></div>
-          </div>
-          <div class="progress-info">
-            <span>1</span>
-            <span>10</span>
-          </div>
+  <main class="profile-main">
+    <div class="profile-sidebar">
+      <div class="profile-card profile-info-card">
+        <div class="profile-avatar-container">
+          <img src="images/pictuers/user_photo.png" alt="Profile Avatar" class="profile-avatar-image"
+            id="profile-avatar-img" />
         </div>
 
-        <div class="content-card empty-card-1"></div>
-        <div class="content-card empty-card-2"></div>
-        <div class="content-card empty-card-3"></div>
-      </div>
-    </main>
+        <h3 class="profile-name">Завантаження...</h3>
+        <p class="profile-email">...</p>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', async () => {
-        const token = localStorage.getItem('accessToken')
-      
-        // Перевірка чи ми залогінені
-        if (!token) {
-          window.location.href = 'index.html'
-          return
+        <button class="edit-profile-btn" id="open-edit-modal-btn">Редагувати профіль</button>
+      </div>
+    </div>
+
+    <div class="profile-content-grid" id="courses-container">
+      <div class="content-card" style="display: flex; align-items: center; justify-content: center; color: #888;">
+        <p>Завантаження курсів...</p>
+      </div>
+    </div>
+  </main>
+
+  <div class="log_in_container" id="edit-profile-modal">
+    <form class="login_form" id="edit-profile-form">
+      <h2 class="login-title">Редагувати профіль</h2>
+
+      <label for="edit-name">Ім'я</label>
+      <input id="edit-name" type="text" class="input-field" placeholder="Ваше ім'я">
+
+      <div class="modal-actions">
+        <button type="button" class="login-btn btn-secondary" id="close-edit-modal">Скасувати</button>
+        <button type="submit" class="login-btn">Зберегти</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="log_in_container" id="delete-course-modal">
+    <div class="login_form" style="align-items: center; text-align: center;">
+      <h2 class="login-title" style="color: #cf3434;">Видалити курс?</h2>
+      <p style="color: #b0b0b0; margin-bottom: 30px;">Ви впевнені, що хочете видалити цей курс? Цю дію неможливо
+        скасувати.</p>
+
+      <div class="modal-actions">
+        <button type="button" class="login-btn btn-secondary" id="cancel-delete-btn">Ні, залишити</button>
+        <button type="button" class="login-btn btn-danger" id="confirm-delete-btn">Так, видалити</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) { window.location.href = 'index.html'; return; }
+
+      const nameEl = document.querySelector('.profile-name');
+      const emailEl = document.querySelector('.profile-email');
+      const coursesContainer = document.getElementById('courses-container');
+
+      // Модалки
+      const editModal = document.getElementById('edit-profile-modal');
+      const deleteModal = document.getElementById('delete-course-modal');
+      let courseIdToDelete = null; // Зберігаємо ID курсу, який хочемо видалити
+
+      // Функції модалок
+      function openModal(m) { m.style.display = 'flex'; setTimeout(() => m.classList.add('modal-open'), 10); }
+      function closeModal(m) { m.classList.remove('modal-open'); setTimeout(() => m.style.display = 'none', 300); }
+
+      // 1. ЗАВАНТАЖЕННЯ ДАНИХ КОРИСТУВАЧА
+      try {
+        const profileResponse = await fetch('http://127.0.0.1:8000/profile/', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (profileResponse.ok) {
+          const userData = await profileResponse.json();
+          nameEl.textContent = userData.username;
+          emailEl.textContent = userData.email;
+          document.getElementById('edit-name').value = userData.username; // Заповнюємо форму
         }
-      
-        const nameEl = document.querySelector('.profile-name')
-        const emailEl = document.querySelector('.profile-email')
-      
+      } catch (e) { console.error(e); }
+
+      // 2. ЗАВАНТАЖЕННЯ КУРСІВ
+      async function loadCourses() {
         try {
-          // Запит тільки за Іменем та Email (твоя стара модель CustomUser)
-          const response = await fetch('http://127.0.0.1:8000/profile/', {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
+          const coursesResponse = await fetch('http://127.0.0.1:8000/courses/', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          if (coursesResponse.ok) {
+            const courses = await coursesResponse.json();
+            coursesContainer.innerHTML = '';
+
+            if (courses.length === 0) {
+              coursesContainer.innerHTML = `<div class="content-card" style="display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; color:#888;"><p>У вас ще немає курсів</p><a href="index.html" style="color:#6366f1;">Створити</a></div>`;
+            } else {
+              courses.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'content-card course-progress-card';
+                courseCard.style.position = 'relative'; // Для кнопки видалення
+
+                const modulesCount = course.modules ? course.modules.length : 0;
+
+                courseCard.innerHTML = `
+                            <div class="course-header" onclick="location.href='topics.html?id=${course.id}'">
+                                <img src="images/icons/python.png" class="course-icon-placeholder" style="filter:grayscale(1); opacity:0.7;">
+                                <p class="modules-count">${modulesCount} модулів</p>
+                                <h4 class="course-name-big">${course.topic}</h4>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 10%;"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span>Start</span>
+                                <span>${modulesCount}</span>
+                            </div>
+                            
+                            <div class="delete-course-btn" onclick="askDeleteCourse(${course.id}, event)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </div>
+                        `;
+                coursesContainer.appendChild(courseCard);
+              });
             }
-          })
-      
-          if (response.ok) {
-            const userData = await response.json()
-      
-            // Підставляємо тільки текст
-            if (nameEl) nameEl.textContent = userData.username
-            if (emailEl) emailEl.textContent = userData.email
-          } else if (response.status === 401) {
-            localStorage.removeItem('accessToken')
-            window.location.href = 'index.html'
           }
-        } catch (error) {
-          console.error('Помилка:', error)
-          if (nameEl) nameEl.textContent = "Помилка з'єднання"
+        } catch (e) { console.error(e); }
+      }
+      loadCourses();
+
+      // 3. ЛОГІКА РЕДАГУВАННЯ ПРОФІЛЮ
+      document.getElementById('open-edit-modal-btn').onclick = () => openModal(editModal);
+      document.getElementById('close-edit-modal').onclick = () => closeModal(editModal);
+
+      document.getElementById('edit-profile-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const newName = document.getElementById('edit-name').value;
+        // Тут можна додати запит на бекенд для зміни імені
+        // await fetch(...) 
+        nameEl.textContent = newName; // Поки що міняємо локально
+        closeModal(editModal);
+        alert("Профіль оновлено (локально)");
+      };
+
+      // 4. ЛОГІКА ВИДАЛЕННЯ КУРСУ
+      window.askDeleteCourse = (id, event) => {
+        event.stopPropagation(); // Щоб не відкрився курс при кліку на смітник
+        courseIdToDelete = id;
+        openModal(deleteModal);
+      };
+
+      document.getElementById('cancel-delete-btn').onclick = () => closeModal(deleteModal);
+
+      document.getElementById('confirm-delete-btn').onclick = async () => {
+        if (!courseIdToDelete) return;
+
+        const btn = document.getElementById('confirm-delete-btn');
+        const originalText = btn.textContent;
+        btn.textContent = "Видалення...";
+
+        try {
+          const res = await fetch(`http://127.0.0.1:8000/courses/${courseIdToDelete}/`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          if (res.ok) {
+            closeModal(deleteModal);
+            loadCourses(); // Перезавантажити список
+          } else {
+            alert("Помилка видалення");
+          }
+        } catch (e) {
+          alert("Помилка з'єднання");
+        } finally {
+          btn.textContent = originalText;
         }
-      
-        // Кнопка Вийти
-        const logoutBtn = document.getElementById('logout-btn')
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('accessToken')
-            window.location.href = 'index.html'
-          })
-        }
-      })
-    </script>
-  </body>
+      };
+
+      // Логаут
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('accessToken');
+        window.location.href = 'index.html';
+      });
+    });
+  </script>
+</body>
+
 </html>
