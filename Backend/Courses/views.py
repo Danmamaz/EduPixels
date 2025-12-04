@@ -58,6 +58,18 @@ def create_course_from_json(user, course_json):
                 title=module_data.get("title", "Модуль"),
                 course=course
             )
+            
+            # Витягуємо лише заголовок. 
+            # Ніякого тексту завдання тут не зберігаємо!
+            hw_topic = module_data.get("homework_topic", f"ДЗ: {module.title}")
+            
+            # Створюємо пусту заготовку під домашку
+            HomeworkModel.objects.create(
+                module=module,
+                title=hw_topic, 
+                content="" # Явно вказуємо, що контенту ще немає
+            )
+
             for lesson_data in module_data.get("lessons", []):
                 LessonModel.objects.create(
                     module=module,
@@ -85,14 +97,14 @@ class ChatAPIView(APIView):
         if not user_input:
             return Response({"error": "Prompt is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Логування запиту залишаємо чисто для історії (це не впливає на логіку)
+        # Логування запиту залишаємо чисто для історії
         chat_entry = ChatPrompt.objects.create(user_input=user_input)
 
         try:
             response = client.chat.completions.create(
                 model="openai/gpt-4o-mini", 
                 temperature=0.7,
-                max_tokens=4000, # Ліміт самого провайдера, щоб не зловити 402
+                max_tokens=4000, 
                 response_format={ "type": "json_object" }, 
                 messages=[
                     {
@@ -142,7 +154,6 @@ RULES:
             model_output = response.choices[0].message.content
             usage = response.usage
 
-            # Просто зберігаємо статистику, нічого не списуємо
             chat_entry.model_response = model_output
             chat_entry.input_tokens = getattr(usage, "prompt_tokens", 0)
             chat_entry.output_tokens = getattr(usage, "completion_tokens", 0)
@@ -167,7 +178,7 @@ RULES:
         courses = (
             CourseModel.objects
             .filter(owner=user)
-            .prefetch_related("modules__lessons")
+            .prefetch_related("modules__lessons", "modules__homeworks") # Одразу тягнемо і домашку
             .order_by('-created_at')
         )
 
@@ -178,18 +189,29 @@ RULES:
                 "topic": course.topic,
                 "modules": []
             }
+            
+            # Наскрізний лічильник уроків для курсу
+            global_lesson_index = 1 
+
             for module in course.modules.all():
+                hw_obj = module.homeworks.first() 
+                homework_content = hw_obj.content if hw_obj else ""
+                
+                lessons_data = []
+                for lesson in module.lessons.all():
+                    lessons_data.append({
+                        "id": lesson.id,
+                        "order_id": global_lesson_index, # Номер уроку в курсі (1, 2, 3...)
+                        "title": lesson.title,
+                        "type": lesson.type
+                    })
+                    global_lesson_index += 1
+
                 module_data = {
                     "id": module.id,
                     "title": module.title,
-                    "lessons": [
-                        {
-                            "id": lesson.id,
-                            "title": lesson.title,
-                            "type": lesson.type
-                        }
-                        for lesson in module.lessons.all()
-                    ]
+                    "homework": homework_content, 
+                    "lessons": lessons_data
                 }
                 course_data["modules"].append(module_data)
             data.append(course_data)
@@ -198,8 +220,6 @@ RULES:
 
 
 class GetCourseAPIView(APIView):
-    # Цей клас ти не просив змінювати, але він і так не мав логіки токенів.
-    # Залишаємо як було.
     def get(self, request, course_id=None):
         user = request.user
         if not user.is_authenticated:
@@ -209,25 +229,41 @@ class GetCourseAPIView(APIView):
             course = (
                 CourseModel.objects
                 .filter(id=course_id, owner=user)
-                .prefetch_related("modules__lessons")
+                .prefetch_related("modules__lessons", "modules__homeworks")
                 .first()
             )
             if not course:
                 return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
             
+            modules_result = []
+            global_lesson_index = 1 # Ініціалізуємо лічильник
+
+            for m in course.modules.all():
+                # Правильний спосіб дістати домашку
+                hw_obj = m.homeworks.first()
+                hw_content = hw_obj.content if hw_obj else ""
+                
+                lessons_result = []
+                for l in m.lessons.all():
+                    lessons_result.append({
+                        "id": l.id, 
+                        "order_id": global_lesson_index, # Додаємо номер
+                        "title": l.title, 
+                        "type": l.type
+                    })
+                    global_lesson_index += 1
+
+                modules_result.append({
+                    "id": m.id,
+                    "title": m.title,
+                    "homework": hw_content,
+                    "lessons": lessons_result
+                })
+
             result = {
                 "id": course.id,
                 "topic": course.topic,
-                "modules": [
-                    {
-                        "id": m.id,
-                        "title": m.title,
-                        "lessons": [
-                            {"id": l.id, "title": l.title, "type": l.type} 
-                            for l in m.lessons.all()
-                        ]
-                    } for m in course.modules.all()
-                ]
+                "modules": modules_result
             }
             return Response(result, status=status.HTTP_200_OK)
         else:
