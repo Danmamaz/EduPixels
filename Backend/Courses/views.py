@@ -58,6 +58,18 @@ def create_course_from_json(user, course_json):
                 title=module_data.get("title", "Модуль"),
                 course=course
             )
+            
+            # Витягуємо лише заголовок. 
+            # Ніякого тексту завдання тут не зберігаємо!
+            hw_topic = module_data.get("homework_topic", f"ДЗ: {module.title}")
+            
+            # Створюємо пусту заготовку під домашку
+            HomeworkModel.objects.create(
+                module=module,
+                title=hw_topic, 
+                content="" # Явно вказуємо, що контенту ще немає
+            )
+
             for lesson_data in module_data.get("lessons", []):
                 LessonModel.objects.create(
                     module=module,
@@ -85,44 +97,43 @@ class ChatAPIView(APIView):
         if not user_input:
             return Response({"error": "Prompt is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Логування запиту залишаємо чисто для історії (це не впливає на логіку)
+        # Логування запиту залишаємо чисто для історії
         chat_entry = ChatPrompt.objects.create(user_input=user_input)
 
         try:
             response = client.chat.completions.create(
                 model="openai/gpt-4o-mini", 
                 temperature=0.7,
-                max_tokens=4000, # Ліміт самого провайдера, щоб не зловити 402
+                max_tokens=4000, 
                 response_format={ "type": "json_object" }, 
                 messages=[
                     {
                         "role": "system",
                         "content": """
                         You are a high-level curriculum design AI. 
-                        OUTPUT MUST BE VALID JSON IN UKRAINIAN.
+        OUTPUT MUST BE VALID JSON IN UKRAINIAN.
 
-                        INPUT FORMAT (JSON):
-                        { "topic": "string" }
+        OUTPUT FORMAT:
+        {
+            "meta": { "topic": "Course Name" },
+            "modules": [
+                {
+                    "title": "Module Title",
+                    "lessons": [
+                        { "title": "Lesson Title", "type": "lecture" }
+                    ],
+                    "homework_topic": "Number of the homework" 
+                }
+            ]
+        }
 
-                        OUTPUT FORMAT (strict JSON, Ukrainian only):
-                        {
-                            "meta": { "topic": "Course Name" },
-                            "modules": [
-                                {
-                                    "title": "Module Title",
-                                    "lessons": [
-                                        { "title": "Lesson Title", "type": "lecture" }
-                                    ]
-                                }
-                            ]
-                        }
-
-                        RULES:
-                        1. Topic: IT related only.
-                        2. Structure: Minimum 5 modules.
-                        3. Lessons: 3-5 per module.
-                        4. Language: Ukrainian ONLY.
-                        5. Output: JSON only.
+        RULES:
+        1. Topic: IT related only.
+        2. Structure: Minimum 5 modules.
+        3. Lessons: 3-5 per module.
+        4. Homework: Include 'homework_topic' - a very short title (3-5 words). NO DESCRIPTION.
+        5. Language: Ukrainian ONLY.
+        6. Output: JSON only.
                         """
                     },
                     {"role": "user", "content": json.dumps({"topic": user_input})}
@@ -132,7 +143,6 @@ class ChatAPIView(APIView):
             model_output = response.choices[0].message.content
             usage = response.usage
 
-            # Просто зберігаємо статистику, нічого не списуємо
             chat_entry.model_response = model_output
             chat_entry.input_tokens = getattr(usage, "prompt_tokens", 0)
             chat_entry.output_tokens = getattr(usage, "completion_tokens", 0)
@@ -156,7 +166,7 @@ class ChatAPIView(APIView):
         courses = (
             CourseModel.objects
             .filter(owner=user)
-            .prefetch_related("modules__lessons")
+            .prefetch_related("modules__lessons", "modules__homeworks") # Одразу тягнемо і домашку
             .order_by('-created_at')
         )
 
@@ -167,18 +177,29 @@ class ChatAPIView(APIView):
                 "topic": course.topic,
                 "modules": []
             }
+            
+            # Наскрізний лічильник уроків для курсу
+            global_lesson_index = 1 
+
             for module in course.modules.all():
+                hw_obj = module.homeworks.first() 
+                homework_content = hw_obj.content if hw_obj else ""
+                
+                lessons_data = []
+                for lesson in module.lessons.all():
+                    lessons_data.append({
+                        "id": lesson.id,
+                        "order_id": global_lesson_index, # Номер уроку в курсі (1, 2, 3...)
+                        "title": lesson.title,
+                        "type": lesson.type
+                    })
+                    global_lesson_index += 1
+
                 module_data = {
                     "id": module.id,
                     "title": module.title,
-                    "lessons": [
-                        {
-                            "id": lesson.id,
-                            "title": lesson.title,
-                            "type": lesson.type
-                        }
-                        for lesson in module.lessons.all()
-                    ]
+                    "homework": homework_content, 
+                    "lessons": lessons_data
                 }
                 course_data["modules"].append(module_data)
             data.append(course_data)
@@ -187,8 +208,6 @@ class ChatAPIView(APIView):
 
 
 class GetCourseAPIView(APIView):
-    # Цей клас ти не просив змінювати, але він і так не мав логіки токенів.
-    # Залишаємо як було.
     def get(self, request, course_id=None):
         user = request.user
         if not user.is_authenticated:
@@ -198,25 +217,41 @@ class GetCourseAPIView(APIView):
             course = (
                 CourseModel.objects
                 .filter(id=course_id, owner=user)
-                .prefetch_related("modules__lessons")
+                .prefetch_related("modules__lessons", "modules__homeworks")
                 .first()
             )
             if not course:
                 return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
             
+            modules_result = []
+            global_lesson_index = 1 # Ініціалізуємо лічильник
+
+            for m in course.modules.all():
+                # Правильний спосіб дістати домашку
+                hw_obj = m.homeworks.first()
+                hw_content = hw_obj.content if hw_obj else ""
+                
+                lessons_result = []
+                for l in m.lessons.all():
+                    lessons_result.append({
+                        "id": l.id, 
+                        "order_id": global_lesson_index, # Додаємо номер
+                        "title": l.title, 
+                        "type": l.type
+                    })
+                    global_lesson_index += 1
+
+                modules_result.append({
+                    "id": m.id,
+                    "title": m.title,
+                    "homework": hw_content,
+                    "lessons": lessons_result
+                })
+
             result = {
                 "id": course.id,
                 "topic": course.topic,
-                "modules": [
-                    {
-                        "id": m.id,
-                        "title": m.title,
-                        "lessons": [
-                            {"id": l.id, "title": l.title, "type": l.type} 
-                            for l in m.lessons.all()
-                        ]
-                    } for m in course.modules.all()
-                ]
+                "modules": modules_result
             }
             return Response(result, status=status.HTTP_200_OK)
         else:
@@ -227,15 +262,12 @@ class GenerateLessonAPIView(APIView):
     """
     GET /lessons/<lesson_id>/generate/
     Generates Markdown lesson.
-    No economy checks.
     """
 
     def get(self, request, lesson_id: int):
         user = request.user
         if not user.is_authenticated:
             return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Перевірка балансу видалена
 
         lesson = (
             LessonModel.objects
@@ -260,7 +292,7 @@ class GenerateLessonAPIView(APIView):
             response = client.chat.completions.create(
                 model="openai/gpt-4o-mini",
                 temperature=0.7,
-                max_tokens=4000, # Запобіжник від 402 помилки
+                max_tokens=4000, 
                 messages=[
                     {
                         "role": "system",
@@ -282,8 +314,6 @@ Structure:
 
             md_output = response.choices[0].message.content
             
-            # Ніякого списання токенів!
-            
             lesson.content = md_output
             lesson.save()
 
@@ -291,4 +321,81 @@ Structure:
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class GenerateHomeworkAPIView(APIView):
+    """
+    GET /modules/<module_id>/generate_homework/
+    Generates homework strictly based on provided lessons.
+    """
+
+    def get(self, request, module_id: int):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        module = (
+            ModuleModel.objects
+            .filter(id=module_id, course__owner=user)
+            .select_related("course")
+            .prefetch_related("lessons")
+            .first()
+        )
+
+        if not module:
+            return Response({"error": "Module not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        homework_obj = HomeworkModel.objects.filter(module=module).first()
+        
+        if homework_obj and len(homework_obj.content) > 10:
+             return Response(homework_obj.content, status=status.HTTP_200_OK)
+
+        if not homework_obj:
+            homework_obj = HomeworkModel(module=module, title=f"ДЗ: {module.title}")
+
+        lessons_titles = [l.title for l in module.lessons.all()]
+        
+        payload = {
+            "course_topic": module.course.topic,
+            "module_title": module.title,
+            "homework_focus": homework_obj.title,
+            "lessons_list": lessons_titles
+        }
+
+        try:
+            response = client.chat.completions.create(
+                model="openai/gpt-4o-mini",
+                temperature=0.5, # Зменшуємо температуру, щоб менше фантазував
+                messages=[
+                    {
+                        "role": "system",
+                        "content": """
+You are a strict technical mentor. Generate a practical homework task in Ukrainian using Markdown.
+
+STRICT CONSTRAINTS:
+1. SCOPE LIMIT: You must ONLY use concepts and tools explicitly mentioned in the 'lessons_list'.
+2. NO ASSUMPTIONS: Do NOT assume the student knows functions, loops, or input if those words are not in 'lessons_list'.
+3. EXAMPLE: If lessons are about "Print", the task must ONLY involve printing. Do NOT ask for "Input".
+4. Focus strictly on 'homework_focus' topic but limit implementation details to 'lessons_list'.
+
+OUTPUT STRUCTURE:
+# Домашнє завдання
+## Завдання
+...
+**Критерії:**
+...
+"""
+                    },
+                    {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}
+                ]
+            )
+
+            md_output = response.choices[0].message.content
             
+            homework_obj.content = md_output
+            homework_obj.save()
+
+            return Response(md_output, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

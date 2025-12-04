@@ -32,6 +32,8 @@ class ModuleModel(models.Model):
         related_name="modules"
     )
     title = models.CharField(max_length=255)
+    # Поле homework видалено, тепер це окрема сутність.
+    # Менше сміття в таблиці модулів.
 
     def __str__(self):
         return self.title
@@ -49,3 +51,20 @@ class LessonModel(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class HomeworkModel(models.Model):
+    """
+    Окрема сутність для домашки.
+    Працює аналогічно LessonModel: є заголовок і контент (Markdown).
+    """
+    module = models.ForeignKey(
+        ModuleModel,
+        on_delete=models.CASCADE,
+        related_name="homeworks"
+    )
+    title = models.CharField(max_length=255, default="Домашнє завдання")
+    content = models.TextField(blank=True) # Тут буде згенерований текст
+
+    def __str__(self):
+        return f"HW: {self.title} ({self.module.title})"
