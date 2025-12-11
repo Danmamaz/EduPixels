@@ -5,6 +5,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
+from rest_framework import generics
+from .serializers import UserUpdateSerializer
+from .models import CustomUser
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -32,5 +35,19 @@ class ProfileView(APIView):
         user = request.user
         return Response({
             "username": user.username,
-            "email": user.email
+            "email": user.email,
+            "streak_days": user.streak_days,
+            "last_submission_date": user.last_submission_date
         }, status=200)
+    
+
+class UserProfileUpdateView(generics.RetrieveUpdateAPIView):
+    """
+    GET: Отримати дані свого профілю.
+    PATCH: Оновити частково (наприклад, тільки ім'я).
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserUpdateSerializer
+
+    def get_object(self):
+        return self.request.user

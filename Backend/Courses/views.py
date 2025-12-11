@@ -59,15 +59,12 @@ def create_course_from_json(user, course_json):
                 course=course
             )
             
-            # Витягуємо лише заголовок. 
-            # Ніякого тексту завдання тут не зберігаємо!
             hw_topic = module_data.get("homework_topic", f"ДЗ: {module.title}")
             
-            # Створюємо пусту заготовку під домашку
             HomeworkModel.objects.create(
                 module=module,
                 title=hw_topic, 
-                content="" # Явно вказуємо, що контенту ще немає
+                content="" 
             )
 
             for lesson_data in module_data.get("lessons", []):
@@ -91,18 +88,16 @@ class ChatAPIView(APIView):
         if not user.is_authenticated:
             return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
         
-        # Більше ніяких перевірок балансу!
         
         user_input = request.data.get("prompt")
         if not user_input:
             return Response({"error": "Prompt is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Логування запиту залишаємо чисто для історії
         chat_entry = ChatPrompt.objects.create(user_input=user_input)
 
         try:
             response = client.chat.completions.create(
-                model="openai/gpt-4o-mini", 
+                model="openai/gpt-4o-mini",  # Або gpt-3.5-turbo, якщо економиш
                 temperature=0.7,
                 max_tokens=4000, 
                 response_format={ "type": "json_object" }, 
@@ -110,8 +105,8 @@ class ChatAPIView(APIView):
                     {
                         "role": "system",
                         "content": """
-You are a cynical Senior Technical Architect and Lead Educator.
-Your goal is to design a HARDCORE, production-ready curriculum.
+You are a Lead Technical Educator.
+Your goal is to design a high-quality, pragmatic curriculum based on the User's Request.
 
 OUTPUT MUST BE VALID JSON IN UKRAINIAN.
 
@@ -120,11 +115,11 @@ INPUT FORMAT (JSON):
 
 OUTPUT FORMAT (strict JSON, Ukrainian only):
 {
-    "meta": { "topic": "Course Name (Technical & Concise)" },
+    "meta": { "topic": "Course Name (Concise & Professional)" },
     "modules": [
         {
-            "title": "Module Title (No fluff)",
-            "homework_topic": "Complex task title",
+            "title": "Module Title",
+            "homework_topic": "Task title",
             "lessons": [
                 { "title": "Lesson Title", "type": "lecture" }
             ]
@@ -132,12 +127,14 @@ OUTPUT FORMAT (strict JSON, Ukrainian only):
     ]
 }
 
-STYLE GUIDELINES (STRICT):
-1. NO MARKETING FLUFF: Ban phrases like "Powerful language", "World of coding", "Future of IT".
-2. NO BEGINNER TRASH: Ban titles starting with "Introduction to...", "What is...", "Basics of...".
-3. SENIOR LEVEL: Use professional terminology immediately (e.g., instead of "How memory works", use "Stack vs Heap Memory Management").
-4. ACTION ORIENTED: Titles must imply deep technical dive or implementation (e.g., "Implementing DI Containers", "Concurrency Patterns", "Low-level Optimization").
-5. TOPIC: If user asks for "Python", do NOT give "Variables". Give "Metaclasses", "AsyncIO", "Memory Profiling". Assume the student is not an idiot.
+LOGIC & ADAPTIVITY:
+1. ANALYZE THE REQUEST: 
+   - If user asks for "Basics" or generic "Python", cover fundamentals (Types, Loops, Functions) but with professional context.
+   - If user asks for "Advanced", go deep (Memory, Concurrency, Architecture).
+   - If specific (e.g., "Django"), focus only on that.
+2. NO MARKETING FLUFF: Avoid "Welcome to the world of...", "Magic of code". Be dry and technical.
+3. STRUCTURE: Logical progression. From simple to complex.
+4. ACTION ORIENTED: Lesson titles should sound like skills (e.g., "Working with Strings" instead of "What is a String").
 
 RULES:
 1. Topic: IT related only.
@@ -178,7 +175,7 @@ RULES:
         courses = (
             CourseModel.objects
             .filter(owner=user)
-            .prefetch_related("modules__lessons", "modules__homeworks") # Одразу тягнемо і домашку
+            .prefetch_related("modules__lessons", "modules__homeworks")
             .order_by('-created_at')
         )
 
@@ -190,7 +187,6 @@ RULES:
                 "modules": []
             }
             
-            # Наскрізний лічильник уроків для курсу
             global_lesson_index = 1 
 
             for module in course.modules.all():
@@ -201,7 +197,7 @@ RULES:
                 for lesson in module.lessons.all():
                     lessons_data.append({
                         "id": lesson.id,
-                        "order_id": global_lesson_index, # Номер уроку в курсі (1, 2, 3...)
+                        "order_id": global_lesson_index,
                         "title": lesson.title,
                         "type": lesson.type
                     })
@@ -236,10 +232,9 @@ class GetCourseAPIView(APIView):
                 return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
             
             modules_result = []
-            global_lesson_index = 1 # Ініціалізуємо лічильник
+            global_lesson_index = 1
 
             for m in course.modules.all():
-                # Правильний спосіб дістати домашку
                 hw_obj = m.homeworks.first()
                 hw_content = hw_obj.content if hw_obj else ""
                 
@@ -247,7 +242,7 @@ class GetCourseAPIView(APIView):
                 for l in m.lessons.all():
                     lessons_result.append({
                         "id": l.id, 
-                        "order_id": global_lesson_index, # Додаємо номер
+                        "order_id": global_lesson_index,
                         "title": l.title, 
                         "type": l.type
                     })
@@ -268,6 +263,30 @@ class GetCourseAPIView(APIView):
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response({"error": "ID required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, course_id=None):
+        user = request.user
+        
+        if not user.is_authenticated:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if not course_id:
+            return Response({"error": "Course ID required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        course = CourseModel.objects.filter(id=course_id, owner=user).first()
+
+        if not course:
+            return Response(
+                {"error": "Course not found or access denied"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        course.delete()
+
+        return Response(
+            {"message": "Course deleted successfully."}, 
+            status=status.HTTP_200_OK
+        )
 
 
 class GenerateLessonAPIView(APIView):
@@ -291,40 +310,31 @@ class GenerateLessonAPIView(APIView):
 
         if not target_lesson:
             return Response({"error": "Lesson not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        # 2. ОБЧИСЛЕННЯ ПОРЯДКОВОГО НОМЕРУ (Order ID)
-        # Це "милиця", але вона працює. Ми беремо всі уроки курсу, сортуємо їх так само,
-        # як вони відображаються в структурі (зазвичай по ID модулів і ID уроків),
-        # і шукаємо індекс нашого уроку.
         
         course = target_lesson.module.course
         
-        # Вибираємо всі уроки цього курсу.
-        # Важливо: order_by має співпадати з логікою створення/відображення!
         all_lessons_in_course = LessonModel.objects.filter(
             module__course=course
         ).order_by('module__id', 'id').values_list('id', flat=True)
         
-        # Перетворюємо QuerySet в список і шукаємо індекс (0-based), тому додаємо +1
         try:
             lesson_list = list(all_lessons_in_course)
             order_id = lesson_list.index(target_lesson.id) + 1
         except ValueError:
-            order_id = 1 # Fallback, якщо сталася магія і урок зник зі списку
+            order_id = 1
 
-        # Допоміжна функція для відповіді
         def build_response(text_content):
             return Response({
-                "id": target_lesson.id,      # ID в базі (для дебагу)
-                "order_id": order_id,        # Номер уроку (1, 2, 3...), який ти просив
+                "id": target_lesson.id,
+                "order_id": order_id,
                 "content": text_content
             }, status=status.HTTP_200_OK)
 
-        # 3. Логіка віддачі контенту (Кеш або Генерація)
+        
         if target_lesson.content and len(target_lesson.content) > 10:
             return build_response(target_lesson.content)
 
-        # Генерація
+        
         payload = {
             "lesson_type": target_lesson.type,
             "lesson_title": target_lesson.title,
@@ -410,7 +420,7 @@ class GenerateHomeworkAPIView(APIView):
         try:
             response = client.chat.completions.create(
                 model="openai/gpt-4o-mini",
-                temperature=0.5, # Зменшуємо температуру, щоб менше фантазував
+                temperature=0.5, 
                 messages=[
                     {
                         "role": "system",
@@ -444,3 +454,4 @@ OUTPUT STRUCTURE:
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        

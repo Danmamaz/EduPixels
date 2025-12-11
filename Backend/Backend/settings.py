@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "Auth",
     "Courses",
+    "Teacher",
 ]
 
 MIDDLEWARE = [
@@ -167,6 +168,7 @@ CORS_ALLOW_HEADERS = (
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5501",
     "https://prod.liveshare.vsengsaas.visualstudio.com",
+    "http://localhost:5501",
 ]
 
 CORS_ALLOWED_ORIGIN_REGEXES = [

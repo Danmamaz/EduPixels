@@ -33,3 +33,21 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return {
             "token": data["access"]
         }
+    
+    
+from rest_framework import serializers
+from .models import CustomUser
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        # Дозволяємо редагувати ТІЛЬКИ ці поля. 
+        # ID, пароль, токени і статус адміна тут відсутні.
+        fields = ['username', 'email']
+
+    def validate_email(self, value):
+        # Додаткова параноя: перевіряємо, чи мило не зайняте кимось іншим
+        user = self.context['request'].user
+        if CustomUser.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError("This email is already in use.")
+        return value

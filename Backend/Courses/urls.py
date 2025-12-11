@@ -7,5 +7,6 @@ urlpatterns = [
     path('<int:course_id>/', GetCourseAPIView.as_view()),
     path("lessons/<int:lesson_id>/", GenerateLessonAPIView.as_view()),
     path("modules/<module_id>/generate_homework/", GenerateHomeworkAPIView.as_view()),
+    
 
 ]
